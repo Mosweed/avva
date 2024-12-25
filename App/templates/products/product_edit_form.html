@@ -1,0 +1,93 @@
+
+{% extends "base.html" %} {% block title %}Edit Product{% endblock %}
+
+{%block hero %} Edit Product: {{ product_id }}  {%endblock%}
+{% block content %}
+
+<div class="container mt-5">
+    <div class="card bg-dark text-light">
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('edit_product', product_id=product_id) }}">
+                {{ form.hidden_tag() }}
+            
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        {{ form.productID.label(class="form-label") }}
+                        {{ form.productID(class="form-control bg-dark text-light", readonly=True) }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.name.label(class="form-label") }}
+                        {{ form.name(class="form-control bg-dark text-light") }}
+                    </div>
+                </div>
+            
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        {{ form.article_number.label(class="form-label") }}
+                        {{ form.article_number(class="form-control bg-dark text-light") }}
+                        {% for error in form.article_number.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.stock.label(class="form-label") }}
+                        {{ form.stock(class="form-control bg-dark text-light") }}
+                    </div>
+                </div>
+            
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        {{ form.minimum_stock.label(class="form-label") }}
+                        {{ form.minimum_stock(class="form-control bg-dark text-light") }}
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            {{ form.perishable(class="form-check-input bg-dark border-light") }}
+                            {{ form.perishable.label(class="form-check-label") }}
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        {{ form.adviceID.label(class="form-label") }}
+                        {{ form.adviceID(class="form-select bg-dark text-light") }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.energy_cost.label(class="form-label") }}
+                        {{ form.energy_cost(class="form-control bg-dark text-light") }}
+                    </div>
+                </div>
+            
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        {{ form.packaging_size.label(class="form-label") }}
+                        {{ form.packaging_size(class="form-control bg-dark text-light") }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.storage_locationID.label(class="form-label") }}
+                        {{ form.storage_locationID(class="form-select bg-dark text-light") }}
+                    </div>
+                </div>
+            
+                <div class="mb-3">
+                    {{ form.suppliers.label(class="form-label") }}
+                    <div>
+                        {% for subfield in form.suppliers %}
+                            <div class="form-check">
+                                {{ subfield(class="form-check-input bg-dark border-light") }}
+                                {{ subfield.label(class="form-check-label") }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+            
+        </div>
+    </div>
+</div>
+{% endblock %}

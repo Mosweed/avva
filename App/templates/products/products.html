@@ -1,0 +1,191 @@
+{% extends "base.html" %} {% block title %}Products{% endblock %} 
+
+{%block hero %} Products {%endblock%}
+{% block
+content %}
+
+
+
+<div class="container-fluid mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="table-responsive shadow-lg rounded bg-white p-4">
+                <table id="product" class="table table-bordered table-hover table-striped w-100 table-dark " >
+                    <thead class="thead-light">
+                        <tr>
+                            <th class="text-center">Details</th>
+                            <th>Product ID</th>
+                            <th>Name</th>
+                            <th>Article Number</th>
+                            <th class="text-right">Stock</th>
+                            <th class="text-right">Minimum Stock</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="mt-5 py-3 bg-light text-center">
+  <p class="mb-0">&copy; 2024 Your Company Name. All rights reserved.</p>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.colVis.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/rowgroup/1.3.1/js/dataTables.rowGroup.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css"
+/>
+
+<script>
+  // Formatting function for row details
+  function format(d) {
+    let details = '<dl class="row">';
+    if (!table.column("article_number:name").visible()) {
+      details +=
+        '<dt class="col-sm-3">Article Number:</dt><dd class="col-sm-9">' +
+        d.article_number +
+        "</dd>";
+    }
+    if (!table.column("stock:name").visible()) {
+      details +=
+        '<dt class="col-sm-3">Stock:</dt><dd class="col-sm-9">' +
+        d.stock +
+        "</dd>";
+    }
+    if (!table.column("minimum_stock:name").visible()) {
+      details +=
+        '<dt class="col-sm-3">Minimum Stock:</dt><dd class="col-sm-9">' +
+        d.minimum_stock +
+        "</dd>";
+    }
+    details += "</dl>";
+    return details;
+  }
+
+  let table = $("#product").DataTable({
+    responsive: {
+      breakpoints: [
+        { name: "desktop", width: Infinity },
+        { name: "tablet", width: 900 },
+        { name: "phone", width: 600 },
+      ],
+    },
+    topEnd: {
+      search: {
+        placeholder: "Type search here",
+      },
+    },
+    responsive: true,
+    serverSide: true,
+    ajax: {
+      url: "/api/products",
+      type: "POST",
+      error: function (xhr, error, thrown) {
+        console.error("Error fetching data:", xhr);
+      },
+    },
+    columns: [
+      {
+        className: "dt-control text-center",
+        orderable: false,
+        data: null,
+        defaultContent: '<i class="fas fa-plus-circle text-primary"></i>',
+        visible: false,
+      },
+      { data: "productID", responsivePriority: 1 },
+      { data: "name", responsivePriority: 1 },
+      { data: "article_number", responsivePriority: 2 },
+      { data: "stock", className: "dt-body-right", responsivePriority: 3 },
+      {
+        data: "minimum_stock",
+        className: "dt-body-right",
+        responsivePriority: 3,
+      },
+      {
+        data: null,
+        orderable: false,
+        searchable: false,
+        className: "text-center",
+        responsivePriority: 1,
+        defaultContent:
+          '<button class="btn btn-sm btn-primary edit-btn" >Edit</button> <button class="btn btn-sm btn-danger delete-btn">Delete</button>  <button class="btn btn-sm btn-info view-btn">View</button>',
+      },
+    ],
+
+    ordering: false,
+    lengthMenu: [
+      [10, 25, 50, -1],
+      [10, 25, 50, "All"],
+    ],
+
+    dom: '<"row mb-3"<"col-md-6"l><"col-md-6 text-end"fB>>t<"row mt-3"<"col-md-5"i><"col-md-7 text-end"p>>',
+    buttons: [
+      {
+        text: '<i class="fas fa-plus"></i> Create New Product',
+        className: "btn btn-success",
+        action: function () {
+          window.location.href = "/products/create";
+        },
+      },
+    ],
+  });
+
+  table.on("column-visibility.dt", function (e, settings, column, state) {
+    if (column === table.column("minimum_stock:name").index()) {
+      let controlColumn = table.column(".dt-control");
+      controlColumn.visible(!state); // Show control column if minimum_stock is hidden
+    }
+  });
+
+  $("#product tbody").on("click", "td.dt-control", function (e) {
+    let tr = $(this).closest("tr");
+    let row = table.row(tr);
+
+    if (row.child.isShown()) {
+      // This row is already open - close it
+      row.child.hide();
+      tr.removeClass("shown");
+    } else {
+      // Open this row
+      row.child(format(row.data())).show();
+      tr.addClass("shown");
+    }
+  });
+
+  $("#product tbody").on("click", ".edit-btn", function () {
+    let data = table.row($(this).closest("tr")).data();
+    window.location.href = "/products/edit/" + data.productID;
+    // Implement your edit functionality here
+  });
+
+  $("#product tbody").on("click", ".view-btn", function () {
+    let data = table.row($(this).closest("tr")).data();
+    window.location.href = "/products/" + data.productID;
+    // Implement your view functionality here
+  });
+
+  $("#product tbody").on("click", ".delete-btn", function () {
+    let data = table.row($(this).closest("tr")).data();
+    if (
+      confirm(
+        "Are you sure you want to delete productID: " + data.productID + "?"
+      )
+    ) {
+      alert("Delete button clicked for productID: " + data.productID);
+      // Implement your delete functionality here
+    }
+  });
+</script>
+{% endblock %}

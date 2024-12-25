@@ -1,0 +1,76 @@
+:root {
+    --primary-color: #6a11cb;
+    --secondary-color: #2575fc;
+    --accent-color: #ffdd57;
+    --background-color: #f8f9fa;
+    --card-color-1: #5856D6;
+    --card-color-2: #3399FF;
+    --card-color-3: #E56464;
+    --text-color-light: #ffffff;
+    --bs-primary-rgb:  42, 48, 61;
+    --bg-black-color: #212529;
+}
+body {
+    background: var(--background-color);
+    color: var(--primary-color);
+}
+.navbar {
+    background: #212529;
+}
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #fff !important;
+}
+.nav-link {
+    color: #fff !important;
+    transition: color 0.3s;
+}
+.active {
+    color: var(--accent-color) !important;
+}
+.nav-link:hover {
+    color: var(--accent-color) !important;
+}
+.card {
+    border: none;
+    color: var(--text-color-light);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.card-bg-1 {
+    background-color: var(--card-color-1);
+}
+.card-bg-2 {
+    background-color: var(--card-color-2);
+}
+.card-bg-3 {
+    background-color: var(--card-color-3);
+}
+h1 {
+    color: var(--primary-color);
+}
+
+.table-container {
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.navbar-toggler {
+   
+    background-color: var(--background-color);
+}
+
+.lead
+{
+    color: var(--accent-color);
+}
+
+
+.bg-hero{
+    background: var(--bg-black-color);
+}
+

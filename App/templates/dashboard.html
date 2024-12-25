@@ -1,0 +1,107 @@
+{% extends "base.html" %} {% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="container my-4">
+  <h1 class="text-center mb-4">Dashboard</h1>
+
+  <div class="row g-4 mt-4">
+    <!-- Tekorten -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card card-bg-1">
+        <div class="card-body">
+          <h5 class="card-title">Products</h5>
+          <p class="card-text">to be Destroyed Soon</p>
+          <h2>1896</h2>
+        </div>
+      </div>
+    </div>
+
+    <!-- Clients -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card card-bg-2">
+        <div class="card-body">
+          <h5 class="card-title">standard transportation</h5>
+          <p class="card-text">CO2/KG</p>
+          <h2>{{standard_co2}}</h2>
+        </div>
+      </div>
+    </div>
+
+    <!-- Followers -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card card-bg-3">
+        <div class="card-body">
+          <h5 class="card-title">urgent transport</h5>
+          <p class="card-text">CO2/KG</p>
+          <h2>{{express_co2}}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container my-4">
+  <h1 class="text-center mb-4">Shortages of products</h1>
+  <div class="table-container">
+    <div class="mb-3">
+      <input
+        type="text"
+        class="form-control"
+        id="searchInput"
+        placeholder="Search for products..."
+      />
+    </div>
+
+    <div class="table-responsive">
+      <table id="product" class="table table-bordered table-striped table-dark">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Product Name</th>
+          <th scope="col">stock</th>
+          <th scope="col">minimum_stock</th>
+          <th scope="col">suppliers</th>
+        </tr>
+      </thead>
+      <tbody id="productTable">
+        {% for product in products %}
+        <tr>
+          <th scope="row">{{product.productID}}</th>
+          <td>{{product.name}}</td>
+          <td>{{product.stock}}</td>
+          <td>{{product.minimum_stock}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+
+
+
+    
+  </div>
+</div>
+
+<script>
+
+
+  (#product).DataTable({
+    responsive: true,
+  });
+
+  const searchInput = document.getElementById("searchInput");
+  const productTable = document.getElementById("productTable");
+
+  searchInput.addEventListener("input", function () {
+    const filter = searchInput.value.toLowerCase();
+    const rows = productTable.getElementsByTagName("tr");
+
+    Array.from(rows).forEach((row) => {
+      const cells = row.getElementsByTagName("td");
+      const match = Array.from(cells).some((cell) =>
+        cell.textContent.toLowerCase().includes(filter)
+      );
+      row.style.display = match ? "" : "none";
+    });
+  });
+</script>
+{% endblock %}

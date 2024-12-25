@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        .invoice-container {
+            max-width: 800px;
+            margin: 30px auto;
+            background: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            color: #333;
+        }
+
+        .company-info, .client-info {
+            margin-top: 20px;
+        }
+
+        .company-info h2, .client-info h2 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .details table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        .details table th, .details table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .details table th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+
+        .total {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .total h3 {
+            margin: 5px 0;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 12px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Invoice</h1>
+            <div class="invoice-number">
+                <p><strong>Invoice #: </strong> INV-2024001</p>
+                <p><strong>Date: </strong> June 17, 2024</p>
+            </div>
+        </div>
+
+        <!-- Company Info -->
+        <div class="company-info">
+            <h2>From:</h2>
+            <p><strong>My Company</strong></p>
+            <p>123 Main Street</p>
+            <p>Amsterdam, NL 1000 AA</p>
+            <p>Email: company@example.com</p>
+        </div>
+
+        <!-- Client Info -->
+        <div class="client-info">
+            <h2>Bill To:</h2>
+            <p><strong>John Doe</strong></p>
+            <p>456 Client Avenue</p>
+            <p>Rotterdam, NL 2000 BB</p>
+            <p>Email: john.doe@example.com</p>
+        </div>
+
+        <!-- Invoice Details -->
+        <div class="details">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Description</th>
+                        <th>Quantity</th>
+                        <th>Unit Price (€)</th>
+                        <th>Total (€)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>{{ details.item }}</td>
+                        <td>{{ details.quantity }}</td>
+                        <td>${{ details.price }}</td>
+                        <td>${{ details.total }}</td>
+                    </tr>
+                   
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Total Amount -->
+        <div class="total">
+            <h3>Subtotal: €620.00</h3>
+            <h3>Tax (21%): €130.20</h3>
+            <h3><strong>Total: €750.20</strong></h3>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>Thank you for your business!</p>
+            <p>If you have any questions about this invoice, please contact us at company@example.com</p>
+        </div>
+    </div>
+</body>
+</html>

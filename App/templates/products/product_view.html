@@ -1,0 +1,81 @@
+
+
+{% extends "base.html" %} {% block title %}Dashboard{% endblock %}
+
+{%block hero %} Edit Product: {{ product.name }}  {%endblock%}
+{% block content %}
+<div class="container mt-3">
+    <a href="{{ url_for('products') }}" class="btn btn-secondary mb-3">&larr; Back</a>
+    <h1 class="text-center mb-4">Product Details</h1>
+    <div class="card bg-secondary text-light">
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h5>Product ID</h5>
+                    <p>{{ product.productID }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Name</h5>
+                    <p>{{ product.name }}</p>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h5>Article Number</h5>
+                    <p>{{ product.article_number }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Stock</h5>
+                    <p>{{ product.stock }}</p>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h5>Minimum Stock</h5>
+                    <p>{{ product.minimum_stock }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Perishable</h5>
+                    <p>{{ "Yes" if product.perishable else "No" }}</p>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h5>Advice</h5>
+                    <p>{{ product.adviceID }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Energy Cost</h5>
+                    <p>{{ product.energy_cost }}</p>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h5>Packaging Size</h5>
+                    <p>{{ product.packaging_size }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Storage Location</h5>
+                    <p>{{ product.storage_locationID }}</p>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <h5>Suppliers</h5>
+                <ul>
+                    {% for supplier in suppliers %}
+                        <li>{{ supplier.name }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+           
+        </div>
+    </div>
+</div>
+
+{% endblock %}
