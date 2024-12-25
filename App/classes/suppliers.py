@@ -74,7 +74,8 @@ class Supplier(db):
 
     def create(self):
         """ Create a new supplier in the database """
-        connection = self.create_connection()
+        print(self)
+        connection = Supplier.create_connection()
         if connection:
             cursor = connection.cursor()
             try:

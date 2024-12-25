@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block hero %} View Supplier: {{ supplier.name }} {% endblock %}
+{% block content %}
+<div class="container mt-3">
+    <a href="{{ url_for('suppliers') }}" class="btn btn-black mb-3">&larr; Back</a>
+    <h1 class="text-center mb-4">Supplier Details</h1>
+    <div class="card bg-dark text-light"> <!-- Zwarte achtergrond voor de card -->
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h5>Supplier Name</h5>
+                    <p>{{ supplier.name }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Phone Number</h5>
+                    <p>{{ supplier.phone_number }}</p>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h5>Street Name</h5>
+                    <p>{{ supplier.street_name }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>House Number</h5>
+                    <p>{{ supplier.house_number }}</p>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h5>Postal Code</h5>
+                    <p>{{ supplier.postal_code }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Website</h5>
+                    <p><a href="{{ supplier.website }}" target="_blank" class="text-white">{{ supplier.website }}</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

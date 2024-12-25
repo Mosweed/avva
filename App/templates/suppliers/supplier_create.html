@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Create Supplier{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <a href="{{ url_for('suppliers') }}" class="btn btn-secondary mb-3">&larr; Back</a>
+    <h1 class="text-center mb-4">Create New Supplier</h1>
+    <div class="card bg-dark text-light">
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('supplier_create') }}">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Supplier Name</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="phone_number" class="form-label">Phone Number</label>
+                    <input type="text" class="form-control" id="phone_number" name="phone_number" required>
+                </div>
+                <div class="mb-3">
+                    <label for="street_name" class="form-label">Street Name</label>
+                    <input type="text" class="form-control" id="street_name" name="street_name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="house_number" class="form-label">House Number</label>
+                    <input type="text" class="form-control" id="house_number" name="house_number" required>
+                </div>
+                <div class="mb-3">
+                    <label for="postal_code" class="form-label">Postal Code</label>
+                    <input type="text" class="form-control" id="postal_code" name="postal_code" required>
+                </div>
+                <div class="mb-3">
+                    <label for="website" class="form-label">Website</label>
+                    <input type="text" class="form-control" id="website" name="website">
+                </div>
+                <button type="submit" class="btn btn-success w-100">Create Supplier</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

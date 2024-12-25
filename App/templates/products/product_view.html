@@ -5,9 +5,9 @@
 {%block hero %} Edit Product: {{ product.name }}  {%endblock%}
 {% block content %}
 <div class="container mt-3">
-    <a href="{{ url_for('products') }}" class="btn btn-secondary mb-3">&larr; Back</a>
+    <a href="{{ url_for('products') }}" class="btn btn-black mb-3">&larr; Back</a>
     <h1 class="text-center mb-4">Product Details</h1>
-    <div class="card bg-secondary text-light">
+    <div class="card bg-black text-light">
         <div class="card-body">
             <div class="row mb-3">
                 <div class="col-md-6">
@@ -45,7 +45,7 @@
             <div class="row mb-3">
                 <div class="col-md-6">
                     <h5>Advice</h5>
-                    <p>{{ product.adviceID }}</p>
+                    <p>{{ product.advice }}</p>
                 </div>
                 <div class="col-md-6">
                     <h5>Energy Cost</h5>
@@ -60,7 +60,7 @@
                 </div>
                 <div class="col-md-6">
                     <h5>Storage Location</h5>
-                    <p>{{ product.storage_locationID }}</p>
+                    <p>{{ product.storage_location}}</p>
                 </div>
             </div>
 
