@@ -1,0 +1,15 @@
+{% extends "base.html" %} {% block title %}Dashboard{% endblock %}
+{% block content %}
+
+  <div class="error-page" >
+      <div class="wrapper">
+          <h2>Oops! Service not available</h2>
+          <div>
+              <img  src="{{ url_for('static' , filename='images/503.svg') }}" alt="503" />
+          </div>
+          <a class="main-btn" href="{{ url_for('dashboard') }}" > Go To Dashboard</a>
+
+      </div>
+  </div>
+{% endblock %}
+

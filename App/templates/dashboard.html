@@ -63,14 +63,25 @@
         </tr>
       </thead>
       <tbody id="productTable">
-        {% for product in products %}
-        <tr>
-          <th scope="row">{{product.productID}}</th>
-          <td>{{product.name}}</td>
-          <td>{{product.stock}}</td>
-          <td>{{product.minimum_stock}}</td>
-        </tr>
-        {% endfor %}
+        {% if products|length == 0 %}
+        <tr class="text-center">
+          <td colspan="5">
+              <img src="https://42f2671d685f51e10fc6-b9fcecea3e50b3b59bdc28dead054ebc.ssl.cf5.rackcdn.com/v2/assets/empty.svg"
+                  alt="No results found">
+              <p class="mt-2">No results found</p>
+          </td>
+      </tr>
+        {% else  %}
+          {% for product in products %}
+          <tr>
+            <th scope="row">{{product.productID}}</th>
+            <td>{{product.name}}</td>
+            <td>{{product.stock}}</td>
+            <td>{{product.minimum_stock}}</td>
+          </tr>
+          {% endfor %}
+
+        {% endif %}
       </tbody>
     </table>
 

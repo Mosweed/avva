@@ -87,3 +87,68 @@ h1 {
     background: var(--bg-black-color);
 }
 
+
+
+.error-page{
+    font-family: 'Poppins', sans-serif;
+    background-color:white;
+    min-height:100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.wrapper{
+    text-align: center;
+}
+.wrapper h2{
+    margin:40px 0;
+    font-size:2.5rem;
+}
+.wrapper img{
+    width:600px;
+    max-width:75%;
+}
+.wrapper h4{
+    margin:40px 0 20px;
+    font-size:1.2rem;
+}
+.main-btn{
+    padding:15px;
+    background-color: #6a11cb;
+    color:#fff;
+    border:none;
+    font-weight:700;
+    letter-spacing: 1px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.form-label {
+    font-weight: bold;
+}
+.btn-group button {
+    min-width: 120px;
+}
+.table th {
+    background-color: #343a40;
+    color: white;
+}
+.form-control[readonly] {
+    background-color: #212529;
+    color: #f8f9fa;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: #212529   ;
+}
+
+@media (max-width:767px){
+    .wrapper h2{
+        font-size:2rem;
+    }
+    .wrapper h4{
+        font-size:1rem;
+    }
+}

@@ -27,7 +27,7 @@ def create_connection():
 
 
 @app.route("/api/products", methods=["POST", "GET"])
-def ajaxfile():
+def api_products():
     connection = create_connection()
     cursor = connection.cursor(dictionary=True)
 
@@ -64,16 +64,16 @@ def ajaxfile():
                     "SELECT * FROM products ORDER BY  productID   asc limit %s, %s ;",
                     (row, rowperpage),
                 )
-                employeelist = cursor.fetchall()
+                productslist = cursor.fetchall()
             else:
                 cursor.execute(
                     "SELECT * FROM products  WHERE name LIKE %s OR productID LIKE %s  ORDER BY productID   limit %s, %s ;",
                     (likeString, likeString, row, rowperpage),
                 )
-                employeelist = cursor.fetchall()
+                productslist = cursor.fetchall()
 
             data = []
-            for row in employeelist:
+            for row in productslist:
                 data.append(
                     {
                         "productID": row["productID"],
@@ -101,7 +101,7 @@ def ajaxfile():
 
 
 @app.route("/api/suppliers", methods=["POST", "GET"])
-def ajaxfile_suppliers():
+def api_suppliers():
     connection = create_connection()
     cursor = connection.cursor(dictionary=True)
 
@@ -167,6 +167,173 @@ def ajaxfile_suppliers():
     except Exception as e:
         print(e)
         return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
+
+
+
+
+
+@app.route("/api/orders", methods=["POST", "GET"])
+def api_orders():
+    connection = create_connection()
+    cursor = connection.cursor(dictionary=True)
+
+    try:
+        if request.method == "POST":
+            draw = request.form["draw"]
+            row = int(request.form["start"])
+            rowperpage = int(request.form["length"])
+            searchValue = request.form["search[value]"]
+           
+
+            ## Total number of records without filtering
+            cursor.execute("select count(*) as allcount FROM orders o inner join customers c on c.customerID = o.customerID")
+            rsallcount = cursor.fetchone()
+            totalRecords = rsallcount["allcount"]
+            print(totalRecords)
+
+            ## Total number of records with filtering
+            likeString = "%" + searchValue + "%"
+            cursor.execute(
+                """SELECT count(*) as allcount from FROM orders o inner join customers c on c.customerID = o.customerID  WHERE c.name LIKE %s OR  c.email LIKE %s  
+                OR  o.orderID LIKE %s OR  o.tracking_code LIKE %s  
+                """,
+                (likeString, likeString,likeString, likeString),
+            )
+            rsallcount = cursor.fetchone()
+            totalRecordwithFilter = rsallcount["allcount"]
+            print(totalRecordwithFilter)
+
+            ## Fetch records
+            if searchValue == "":
+                cursor.execute(
+                    "SELECT o.* , c.name , c.email   FROM orders o inner join customers c on c.customerID = o.customerID  ORDER BY  o.orderID   asc limit %s, %s ;",
+                    (row, rowperpage),
+                )
+                orderlist = cursor.fetchall()
+            else:
+                cursor.execute(
+                    """SELECT o.* , c.name , c.email   FROM orders o inner join customers c on c.customerID = o.customerID  ORDER BY  o.orderID   
+                    WHERE c.name LIKE %s OR  c.email LIKE %s  
+                OR  o.orderID LIKE %s OR  o.tracking_code LIKE %s    limit %s, %s ;""",
+                    (likeString, likeString,likeString, likeString, row, rowperpage),
+                )
+                orderlist = cursor.fetchall()
+
+            data = []
+            for row in orderlist:
+                data.append(
+                    {
+                        "orderID": row["orderID"],
+                        "name": row["name"],
+                        "email": row["email"],
+                        "status": row["status"],
+                        "date": row["date"],
+                    }
+                )
+
+            response = {
+                "draw": draw,
+                "iTotalRecords": totalRecords,
+                "iTotalDisplayRecords": totalRecordwithFilter,
+                "aaData": data,
+            }
+
+            return jsonify(response)
+
+    except Exception as e:
+        print(e)
+    finally:
+        cursor.close()
+        connection.close()
+
+
+
+@app.route("/api/order", methods=["POST", "GET"])
+def api_order():
+    connection = create_connection()
+    cursor = connection.cursor(dictionary=True)
+
+    try:
+        if request.method == "POST":
+            # Extract parameters from the request
+            draw = int(request.form.get("draw", 0))  # Default to 0 if not provided
+            row = int(request.form.get("start", 0))
+            rowperpage = int(request.form.get("length", 10))
+            searchValue = request.form.get("search[value]", "").strip()
+
+            # Total number of records without filtering
+            cursor.execute("""
+                select count(*) as allcount FROM orders o inner join customers c on c.customerID = o.customerID
+            """)
+            rsallcount = cursor.fetchone()
+            totalRecords = rsallcount["allcount"] if rsallcount else 0
+
+            # Total number of records with filtering
+            likeString = f"%{searchValue}%"
+            cursor.execute("""
+                SELECT COUNT(*) as allcount 
+                FROM orders o 
+                INNER JOIN customers c ON c.customerID = o.customerID  
+                WHERE c.name LIKE %s OR c.email LIKE %s 
+                      OR o.orderID LIKE %s OR o.tracking_code LIKE %s
+            """, (likeString, likeString, likeString, likeString))
+            rsallcount = cursor.fetchone()
+            totalRecordwithFilter = rsallcount["allcount"] if rsallcount else 0
+
+            # Fetch filtered records
+            if searchValue:
+                cursor.execute("""
+                    SELECT o.*, c.name, c.email  
+                    FROM orders o 
+                    INNER JOIN customers c ON c.customerID = o.customerID  
+                    WHERE c.name LIKE %s OR c.email LIKE %s 
+                          OR o.orderID LIKE %s OR o.tracking_code LIKE %s
+                    ORDER BY o.orderID ASC 
+                    LIMIT %s, %s
+                """, (likeString, likeString, likeString, likeString, row, rowperpage))
+            else:
+                cursor.execute("""
+                    SELECT o.*, c.name, c.email  
+                    FROM orders o 
+                    INNER JOIN customers c ON c.customerID = o.customerID  
+                    ORDER BY o.orderID ASC 
+                    LIMIT %s, %s
+                """, (row, rowperpage))
+            
+            employeelist = cursor.fetchall()
+
+            # Prepare response data
+            data = [
+                {
+                    "orderID": record["orderID"],
+                    "name": record["name"],
+                    "email": record["email"],
+                    "status": record["status"],
+                    "date": record["date"],
+                }
+                for record in employeelist
+            ]
+
+            response = {
+                "draw": draw,
+                "iTotalRecords": totalRecords,
+                "iTotalDisplayRecords": totalRecordwithFilter,
+                "aaData": data,
+            }
+
+            return jsonify(response)
+
+        else:
+            return jsonify({"error": "Invalid request method."}), 405
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"error": "An error occurred.", "details": str(e)}), 500
+
     finally:
         cursor.close()
         connection.close()

@@ -6,6 +6,7 @@ from flask import (
     render_template,
     jsonify,
     flash,
+    abort
 )
 from app import app, mail
 import mysql.connector
@@ -83,7 +84,7 @@ def dashboard():
     # return jsonify([t.__dict__ for t in products])
 
     except Error as e:
-        return jsonify({"error": str(e)}), 500
+        abort(500)
     finally:
         cursor.close()
         connection.close()
@@ -94,38 +95,27 @@ def products():
 
     try:
 
-        products = Product.get_all()
-
-        # page = request.args.get(
-        #     "page", 1, type=int
-        # )  # Default to page 1 if not specified
-        # per_page = 10
-        # strat = (page - 1) * per_page
-        # end = strat + per_page
-        # total_pages = (len(products) + per_page - 1) // per_page
-        # print(total_pages)
-        # products = products[strat:end]
-        return render_template("products/products.html", products=products)
-        # return render_template(
-        #     "products.html", products=products, total_pages=total_pages, page=page
-        # )
-        # return jsonify([t.__dict__ for t in products])
+        return render_template("products/products.html")
 
     except Error as e:
-        return jsonify({"error": str(e)}), 500
+       abort(500)
     finally:
         print("Done")
-        # cursor.close()
-        # connection.close()
 
 
 @app.route("/products/<product_id>")
 def product(product_id):
-    product = Product.get_by_id(product_id)
+    try:
+        product = Product.get_by_id(product_id)
 
-    suppliers = product.get_suppliers()
-    return render_template("products/product_view.html", product=product, suppliers=suppliers)
-
+        if not product:
+            abort( 404)
+        suppliers = product.get_suppliers()
+        return render_template("products/product_view.html", product=product, suppliers=suppliers)
+    except Error as e:
+        abort(500)
+    finally:
+        print("Done")
 
 # Functie om een artikelnummer te controleren en toe te voegen
 def create_unique_article():
@@ -181,7 +171,7 @@ def product_create():
             )
             return redirect(url_for("products"))
         except Error as e:
-            print(f"Error: {e}")
+           abort(500)
 
     return render_template("products/product_create_form.html", form=form)
 
@@ -250,15 +240,13 @@ def edit_product(product_id):
 def suppliers():
 
     try:
-        suppliers = Supplier.get_all()
-        return render_template("suppliers/suppliers.html", suppliers=suppliers)
+       
+        return render_template("suppliers/suppliers.html")
 
     except Error as e:
-        return jsonify({"error": str(e)}), 500
-    finally:
-        print("Done")
-        # cursor.close()
-        # connection.close()
+        abort(500)
+   
+  
 
 
 @app.route("/suppliers/<int:supplier_id>")
@@ -276,7 +264,7 @@ def supplier_view(supplier_id):
         return render_template("suppliers/supplier_view.html", supplier=supplier)
 
     except Error as e:
-        return jsonify({"error": str(e)}), 500
+        abort(500)
     finally:
         print("Done")
 
@@ -312,7 +300,7 @@ def supplier_create():
             return redirect(url_for("suppliers"))
         except Error as e:
             print(f"Error: {e}")
-            return jsonify({"error": str(e)}), 500
+            abort(500)
 
     return render_template("suppliers/supplier_create.html")
 
@@ -322,8 +310,7 @@ def supplier_edit(supplier_id):
     # Haal de bestaande gegevens van de leverancier op
     supplier = Supplier.get_by_id(supplier_id)
     if not supplier:
-        return jsonify({"error": "Supplier not found"}), 404
-
+        abort(404)
     if request.method == "POST":
         # Haal de geüpdatete gegevens op uit het formulier
         supplier.name = request.form.get("name")
@@ -339,11 +326,67 @@ def supplier_edit(supplier_id):
             return redirect(url_for("suppliers"))  # Redirect naar leverancierslijst
         except Error as e:
             print(f"Error: {e}")
-            return jsonify({"error": str(e)}), 500
+            abort(500)
 
     # Render het formulier met de bestaande gegevens
     return render_template("suppliers/supplier_edit.html", supplier=supplier)
 
+
+
+@app.route('/orders')
+def orders():
+    try:
+        return render_template("orders/orders.html")
+    except Error as e:
+        abort(500)
+        
+        
+@app.route('/orders/<int:order_id>')
+
+def order_details(order_id):
+    # Example data passed to the template
+    order = {
+        "order_number": 1,
+        "customer_name": "yazan sweed",
+        "total": 37.39,
+        "payment_status": "Not Paid",
+        "status_options": ["New", "In Progress", "Sent", "Delivered", "Canceled"],
+        "current_status": "In Progress",
+        "invoice_address": {
+            "company_name": "",
+            "email": "admin@gmail.com",
+            "phone": "0612345678",
+            "street": "koolhoensraat",
+            "house_number": "3",
+            "postal_code": "6035 GO",
+            "place": "opel",
+            "country": "Nederland"
+        },
+        "shipping_address": {
+            "company_name": "",
+            "email": "admin@gmail.com",
+            "phone": "0612345678",
+            "street": "koolhoensraat",
+            "house_number": "3",
+            "postal_code": "6035 GO",
+            "place": "opel",
+            "country": "Nederland"
+        },
+        "order_items": [
+            {
+                "id": 1,
+                "product_name": "Monseame Senger",
+                "status": "In behandeling",
+                "price": 9.12,
+                "amount": 5,
+                "total": 45.60
+            }
+        ]
+    }
+    return render_template('orders/order_details.html', order=order)
+
+
+    
 
 @app.route("/send-email")
 def send_email():
@@ -369,3 +412,24 @@ def send_email():
     mail.send(msg)
 
     return "E-mail verzonden!"
+
+
+
+
+
+
+
+@app.errorhandler(404) 
+def page_not_found(e):
+    return render_template('errors/404.html'), 404
+
+
+
+@app.errorhandler(503) 
+def page_not_found(e):
+    return render_template('errors/503.html'), 503
+
+
+@app.errorhandler(500) 
+def page_not_found(e):
+    return render_template('errors/500.html'), 500

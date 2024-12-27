@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Orders{% endblock %}
+
+{% block hero %} Order #{{ order.order_number }} Details {% endblock %}
+
+{% block content %} 
+<div class="container my-5">
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="orderNumber" class="form-label">Order Number</label>
+                        <input type="text" class="form-control" id="orderNumber" value="{{ order.order_number }}" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="customerName" class="form-label">Customer Name</label>
+                        <input type="text" class="form-control" id="customerName" value="{{ order.customer_name }}" readonly>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="total" class="form-label">Total</label>
+                        <input type="text" class="form-control" id="total" value="{{ order.total }}" readonly>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label class="form-label">Status</label>
+                        <div class="d-flex flex-wrap">
+                            {% for status in order.status_options %}
+                            <button type="button" class="btn btn-outline-primary me-2 mb-2 {% if status == order.current_status %}active{% endif %}">
+                                {{ status }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                
+
+                <button type="submit" class="btn btn-success w-100">Save</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <h4 class="text-center">Invoice Address</h4>
+            <div class="card">
+                <div class="card-body">
+                    <form>
+                        {% for key, value in order.invoice_address.items() %}
+                        <div class="mb-3">
+                            <label class="form-label">{{ key.replace('_', ' ').title() }}</label>
+                            <input type="text" class="form-control" value="{{ value }}" readonly>
+                        </div>
+                        {% endfor %}
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <h4 class="text-center">Shipping Address</h4>
+            <div class="card">
+                <div class="card-body">
+                    <form>
+                        {% for key, value in order.shipping_address.items() %}
+                        <div class="mb-3">
+                            <label class="form-label">{{ key.replace('_', ' ').title() }}</label>
+                            <input type="text" class="form-control" value="{{ value }}" readonly>
+                        </div>
+                        {% endfor %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h4 class="mt-5 text-center">Order Items</h4>
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Order Item ID</th>
+                            <th>Product Name</th>
+                            <th>Status</th>
+                            <th>Product Price</th>
+                            <th>Amount</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order.order_items %}
+                        <tr>
+                            <td>{{ item.id }}</td>
+                            <td>{{ item.product_name }}</td>
+                            <td><span class="badge bg-warning text-dark">{{ item.status }}</span></td>
+                            <td>&euro;{{ item.price }}</td>
+                            <td>{{ item.amount }}</td>
+                            <td>&euro;{{ item.total }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
