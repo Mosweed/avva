@@ -1,7 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Edit Product{% endblock %}
 
-{% extends "base.html" %} {% block title %}Edit Product{% endblock %}
-
-{%block hero %} Edit Product: {{ product_id }}  {%endblock%}
+{% block hero %} Edit Product: {{ product_id }} {% endblock %}
 {% block content %}
 
 <div class="container mt-5">
@@ -9,7 +9,20 @@
         <div class="card-body">
             <form method="POST" action="{{ url_for('edit_product', product_id=product_id) }}">
                 {{ form.hidden_tag() }}
-            
+
+                <!-- Toon foutmeldingen bovenaan -->
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <ul>
+                            {% for field, errors in form.errors.items() %}
+                                {% for error in errors %}
+                                    <li>{{ field }}: {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
                 <div class="row mb-3">
                     <div class="col-md-6">
                         {{ form.productID.label(class="form-label") }}
@@ -20,21 +33,18 @@
                         {{ form.name(class="form-control bg-dark text-light") }}
                     </div>
                 </div>
-            
+
                 <div class="row mb-3">
                     <div class="col-md-6">
                         {{ form.article_number.label(class="form-label") }}
-                        {{ form.article_number(class="form-control bg-dark text-light") }}
-                        {% for error in form.article_number.errors %}
-                            <div class="text-danger">{{ error }}</div>
-                        {% endfor %}
+                        {{ form.article_number(class="form-control bg-dark text-light", readonly=True) }}
                     </div>
                     <div class="col-md-6">
                         {{ form.stock.label(class="form-label") }}
                         {{ form.stock(class="form-control bg-dark text-light") }}
                     </div>
                 </div>
-            
+
                 <div class="row mb-3">
                     <div class="col-md-6">
                         {{ form.minimum_stock.label(class="form-label") }}
@@ -47,7 +57,7 @@
                         </div>
                     </div>
                 </div>
-            
+
                 <div class="row mb-3">
                     <div class="col-md-6">
                         {{ form.adviceID.label(class="form-label") }}
@@ -58,7 +68,7 @@
                         {{ form.energy_cost(class="form-control bg-dark text-light") }}
                     </div>
                 </div>
-            
+
                 <div class="row mb-3">
                     <div class="col-md-6">
                         {{ form.packaging_size.label(class="form-label") }}
@@ -69,7 +79,7 @@
                         {{ form.storage_locationID(class="form-select bg-dark text-light") }}
                     </div>
                 </div>
-            
+
                 <div class="mb-3">
                     {{ form.suppliers.label(class="form-label") }}
                     <div>
@@ -81,12 +91,11 @@
                         {% endfor %}
                     </div>
                 </div>
-            
+
                 <div class="d-grid">
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </div>
             </form>
-            
         </div>
     </div>
 </div>

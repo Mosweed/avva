@@ -192,18 +192,21 @@ INSERT INTO `products` (
                 """
 
                 # Uitvoeren van de query met parameters
-                cursor.execute(query, (
-                    self.name,
-                    self.article_number,
-                    self.stock,
-                    self.minimum_stock,
-                    self.perishable,
-                    self.adviceID,
-                    self.energy_cost,
-                    self.packaging_size,
-                    self.storage_locationID,
-                    self.productID
-                ))
+                cursor.execute(
+                    query,
+                    (
+                        self.name,
+                        self.article_number,
+                        self.stock,
+                        self.minimum_stock,
+                        self.perishable,
+                        self.adviceID,
+                        self.energy_cost,
+                        self.packaging_size,
+                        self.storage_locationID,
+                        self.productID,
+                    ),
+                )
 
                 # Bevestig wijzigingen
                 connection.commit()
@@ -211,14 +214,10 @@ INSERT INTO `products` (
             except mysql.connector.Error as e:
                 print(f"Error updating product: {e}")
             finally:
-                
+
                 cursor.close()
                 connection.close()
-                
-                
-                
-                
-                
+
     def get_suppliers(self):
         """Fetch all suppliers for a product"""
 
@@ -257,9 +256,7 @@ INSERT INTO `products` (
                 cursor.execute(query)
                 rows = cursor.fetchall()
                 for row in rows:
-                    storage_locations.append(
-                        (row["storage_locationID"], row["storage_name"])
-                    )
+                    storage_locations.append((row["storage_locationID"], row["storage_name"]))
 
                 return storage_locations
             except Error as e:
@@ -288,7 +285,6 @@ INSERT INTO `products` (
                 cursor.close()
                 connection.close()
 
-
     def add_supplier(self, supplierID):
         connection = Product.create_connection()
         if connection:
@@ -301,6 +297,23 @@ INSERT INTO `products` (
                 cursor.execute(query, (supplierID, self.productID))
                 connection.commit()
                 print(f"Supplier {supplierID} added to product {self.productID}")
+            except Error as e:
+                print(f"Error: {e}")
+            finally:
+                cursor.close()
+                connection.close()
+
+    def clear_suppliers(self):
+        connection = Product.create_connection()
+        if connection:
+            cursor = connection.cursor()
+            try:
+                query = """
+                    DELETE FROM suppliers_has_products WHERE products_productID = %s
+                """
+                cursor.execute(query, (self.productID,))
+                connection.commit()
+                print(f"Suppliers cleared for product {self.productID}")
             except Error as e:
                 print(f"Error: {e}")
             finally:

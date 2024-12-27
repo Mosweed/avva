@@ -1,8 +1,18 @@
 from App.classes.db import db
 from mysql.connector import Error
+
+
 class Supplier(db):
-    def __init__(self, supplierID=None, name=None, phone_number=None, street_name=None,
-                 house_number=None, postal_code=None, website=None ):
+    def __init__(
+        self,
+        supplierID=None,
+        name=None,
+        phone_number=None,
+        street_name=None,
+        house_number=None,
+        postal_code=None,
+        website=None,
+    ):
         self.supplierID = supplierID
         self.name = name
         self.phone_number = phone_number
@@ -13,7 +23,7 @@ class Supplier(db):
 
     @staticmethod
     def get_by_id(supplierID):
-        """ Fetch a supplier by its ID """
+        """Fetch a supplier by its ID"""
         connection = Supplier.create_connection()
         if connection:
             cursor = connection.cursor(dictionary=True)
@@ -24,13 +34,13 @@ class Supplier(db):
                 row = cursor.fetchone()
                 if row:
                     return Supplier(
-                        supplierID=row['supplierID'],
-                        name=row['name'],
-                        phone_number=row['phone_number'],
-                        street_name=row['street_name'],
-                        house_number=row['house_number'],
-                        postal_code=row['postal_code'],
-                        website=row['website']
+                        supplierID=row["supplierID"],
+                        name=row["name"],
+                        phone_number=row["phone_number"],
+                        street_name=row["street_name"],
+                        house_number=row["house_number"],
+                        postal_code=row["postal_code"],
+                        website=row["website"],
                     )
             except Error as e:
                 print(f"Error: {e}")
@@ -41,7 +51,7 @@ class Supplier(db):
 
     @staticmethod
     def get_all():
-        """ Fetch all suppliers """
+        """Fetch all suppliers"""
         connection = Supplier.create_connection()
         suppliers = []
         if connection:
@@ -54,13 +64,13 @@ class Supplier(db):
 
                 for row in rows:
                     supplier = Supplier(
-                        supplierID=row['supplierID'],
-                        name=row['name'],
-                        phone_number=row['phone_number'],
-                        street_name=row['street_name'],
-                        house_number=row['house_number'],
-                        postal_code=row['postal_code'],
-                        website=row['website']
+                        supplierID=row["supplierID"],
+                        name=row["name"],
+                        phone_number=row["phone_number"],
+                        street_name=row["street_name"],
+                        house_number=row["house_number"],
+                        postal_code=row["postal_code"],
+                        website=row["website"],
                     )
                     suppliers.append(supplier)
 
@@ -73,7 +83,7 @@ class Supplier(db):
         return []
 
     def create(self):
-        """ Create a new supplier in the database """
+        """Create a new supplier in the database"""
         print(self)
         connection = Supplier.create_connection()
         if connection:
@@ -84,8 +94,17 @@ class Supplier(db):
                     (name, phone_number, street_name, house_number, postal_code, website) 
                     VALUES (%s, %s, %s, %s, %s, %s)
                 """
-                cursor.execute(query, (self.name, self.phone_number, self.street_name,
-                                       self.house_number, self.postal_code, self.website))
+                cursor.execute(
+                    query,
+                    (
+                        self.name,
+                        self.phone_number,
+                        self.street_name,
+                        self.house_number,
+                        self.postal_code,
+                        self.website,
+                    ),
+                )
                 connection.commit()
                 self.supplierID = cursor.lastrowid
                 print(f"Supplier created successfully with ID: {self.supplierID}")
@@ -96,7 +115,7 @@ class Supplier(db):
                 connection.close()
 
     def edit(self):
-        """ Edit an existing supplier in the database """
+        """Edit an existing supplier in the database"""
         if not self.supplierID:
             print("Error: Cannot edit a supplier without a valid supplierID.")
             return
@@ -105,16 +124,25 @@ class Supplier(db):
         if connection:
             cursor = connection.cursor()
             try:
-                
+
                 query = """
                     UPDATE suppliers 
                     SET name = %s, phone_number = %s, street_name = %s, house_number = %s, 
                         postal_code = %s, website = %s
                     WHERE supplierID = %s
                 """
-                cursor.execute(query, (self.name, self.phone_number, self.street_name,
-                                       self.house_number, self.postal_code, self.website,
-                                       self.supplierID))
+                cursor.execute(
+                    query,
+                    (
+                        self.name,
+                        self.phone_number,
+                        self.street_name,
+                        self.house_number,
+                        self.postal_code,
+                        self.website,
+                        self.supplierID,
+                    ),
+                )
                 connection.commit()
                 print(f"Supplier with ID {self.supplierID} updated successfully!")
             except Error as e:
@@ -122,8 +150,7 @@ class Supplier(db):
             finally:
                 cursor.close()
                 connection.close()
-                
-                
+
     @staticmethod
     def get_id_and_name():
         connection = Supplier.create_connection()
@@ -136,7 +163,7 @@ class Supplier(db):
                 cursor.execute(query)
                 rows = cursor.fetchall()
                 for row in rows:
-                    suppliers.append((row['supplierID'], row['name']))  # Return tuples
+                    suppliers.append((row["supplierID"], row["name"]))  # Return tuples
 
                 return suppliers
             except Error as e:
