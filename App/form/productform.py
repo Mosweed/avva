@@ -14,6 +14,7 @@ from wtforms.validators import (
     Optional,
     NumberRange,
     ValidationError,
+    InputRequired
 )
 from App.classes.suppliers import Supplier
 from App.classes.products import Product
@@ -35,6 +36,13 @@ class ProductForm(FlaskForm):
     adviceID = SelectField("Advice", choices=ADVICE_OPTIONS, validators=[DataRequired()])
     energy_cost = StringField("Energy Cost", validators=[DataRequired()])
     packaging_size = StringField("Packaging Size", validators=[DataRequired()])
+    price = FloatField(
+        'Enter a float number:',
+        validators=[
+            InputRequired(message="This field is required."),
+            NumberRange(min=0.0, message="Value must be moor than 0 .")
+        ]
+    )
     storage_locationID = SelectField(
         "Storage Location",
         choices=STORAGE_LOCATIONS,
@@ -63,6 +71,13 @@ class EditProductForm(FlaskForm):
     adviceID = SelectField("Advice", choices=ADVICE_OPTIONS, validators=[DataRequired()])
     energy_cost = StringField("Energy Cost", validators=[DataRequired()])
     packaging_size = StringField("Packaging Size", validators=[DataRequired()])
+    price = FloatField(
+        'Enter a float number:',
+        validators=[
+            InputRequired(message="This field is required."),
+            NumberRange(min=0.0, message="Value must be moor than 0 .")
+        ]
+    )
     storage_locationID = SelectField(
         "Storage Location",
         choices=STORAGE_LOCATIONS,

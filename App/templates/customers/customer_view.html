@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block hero %} View Customer: {{ customer.name }} {% endblock %}
+{% block content %}
+<div class="container mt-3">
+    <a href="{{ url_for('customers') }}" class="btn btn-black mb-3">&larr; Back</a>
+    <h1 class="text-center mb-4">Customer Details</h1>
+    <div class="card bg-dark text-light"> <!-- Zwarte achtergrond voor de card -->
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h5>Customer Name</h5>
+                    <p>{{ customer.name }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Phone Number</h5>
+                    <p>{{ customer.phone_number }}</p>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h5>Email</h5>
+                    <p>{{ customer.email }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Street Name</h5>
+                    <p>{{ customer.street_name }}</p>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h5>House Number</h5>
+                    <p>{{ customer.house_number }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Postal Code</h5>
+                    <p>{{ customer.postal_code }}</p>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h5>City</h5>
+                    <p>{{ customer.city }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Annual Revenue</h5>
+                    <p>${{ "{:,.2f}".format(customer.annual_revenue) }}</p>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h5>Customer Discount</h5>
+                    <p>{{ customer.customer_discount }}%</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

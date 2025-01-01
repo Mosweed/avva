@@ -30,17 +30,17 @@
 
                 <div class="row mb-3">
                     <div class="col-md-12">
-                        <label class="form-label">Status</label>
-                        <div class="d-flex flex-wrap">
-                            {% for status in order.status_options %}
-                            <button type="button" class="btn btn-outline-primary me-2 mb-2 {% if status == order.current_status %}active{% endif %}">
-                                {{ status }}
-                            </button>
-                            {% endfor %}
-                        </div>
+                        <label for="status" class="form-label">Status</label>
+                        <form method="post" >
+                            <select name="status" id="status" class="form-select">
+                                {% for status in order.status_options %}
+                                <option value="{{ status }}" {% if status == order.current_status %}selected{% endif %}>
+                                    {{ status }}
+                                </option>
+                                {% endfor %}
+                            </select>
                     </div>
                 </div>
-
                 
 
                 <button type="submit" class="btn btn-success w-100">Save</button>

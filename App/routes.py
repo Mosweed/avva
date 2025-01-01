@@ -13,11 +13,16 @@ import mysql.connector
 from mysql.connector import Error
 from App.classes.products import Product
 from App.classes.suppliers import Supplier
+from App.classes.customers import Customer
 from flask_mail import Message
 from flask import session
 import random
 import string
+
+from App.form.customerform import CustomerForm
 from App.form.productform import ProductForm, EditProductForm
+
+from logging_config import logger
 
 
 def create_connection():
@@ -30,10 +35,10 @@ def create_connection():
             database=app.config["MYSQL_DB"],
         )
         if connection.is_connected():
-            print("Connected to MySQL database")
-        return connection
+            return connection
     except Error as e:
-        print(f"Error: {e}")
+        logger.error(f" A critical error has occurred in  create_connection(): {e} ")
+        
         return None
 
 
@@ -46,6 +51,7 @@ def calculate_co2_truck(distance_km, emission_per_km=900):
 @app.route("/Dashboard")
 @app.route("/")
 def dashboard():
+
     standard_co2 = calculate_co2_truck(random.randint(100, 500))
     express_co2 = calculate_co2_truck(random.randint(100, 500) + 200)
 
@@ -57,13 +63,11 @@ def dashboard():
             standard_co2=standard_co2,
             express_co2=express_co2,
         )
-        # return jsonify({"error": "Geen verbinding met database"}), 500
-
     cursor = connection.cursor(dictionary=True)
     try:
         cursor.execute(
             "SELECT p.productID , p.name , p.stock , p.minimum_stock   FROM products p  where stock  <= minimum_stock "
-        )  # Pas de tabelnaam aan
+        )  
         rows = cursor.fetchall()
 
         products = [
@@ -85,6 +89,8 @@ def dashboard():
 
     except Error as e:
         abort(500)
+        logger.error(f" A critical error has occurred in  dashboard(): {e} ")        
+        
     finally:
         cursor.close()
         connection.close()
@@ -99,12 +105,14 @@ def products():
 
     except Error as e:
        abort(500)
+       logger.error(f" A critical error has occurred in  products(): {e} ")
     finally:
         print("Done")
 
 
 @app.route("/products/<product_id>")
 def product(product_id):
+    
     try:
         product = Product.get_by_id(product_id)
 
@@ -114,6 +122,7 @@ def product(product_id):
         return render_template("products/product_view.html", product=product, suppliers=suppliers)
     except Error as e:
         abort(500)
+        logger.error(f" A critical error has occurred in  product(): {e} ")
     finally:
         print("Done")
 
@@ -156,12 +165,14 @@ def product_create():
             energy_cost=form.energy_cost.data,
             packaging_size=form.packaging_size.data,
             storage_locationID=form.storage_locationID.data,
+            price=form.price.data,
         )
 
         suppliers = form.suppliers.data
 
         try:
             product.create()
+
             for supplier_id in suppliers:
                 product.add_supplier(supplier_id)
 
@@ -172,17 +183,18 @@ def product_create():
             return redirect(url_for("products"))
         except Error as e:
            abort(500)
+           logger.error(f" A critical error has occurred in  product_create(): {e} ")
 
     return render_template("products/product_create_form.html", form=form)
 
 
 @app.route("/products/edit/<product_id>", methods=["GET", "POST"])
 def edit_product(product_id):
-    # Haal het product op uit de database
+    
     product = Product.get_by_id(product_id)
     if not product:
-        flash("Product not found", "danger")
-        return redirect(url_for("products"))
+        abort(404)
+   
 
     # Vul product_data met gegevens uit de database
     product_data = {
@@ -197,6 +209,7 @@ def edit_product(product_id):
         "packaging_size": product.packaging_size,
         "storage_locationID": product.storage_locationID,
         "suppliers": [supplier.supplierID for supplier in product.get_suppliers()],
+        "price": product.price,
     }
 
     # Maak een formulier gebaseerd op deze data
@@ -213,6 +226,7 @@ def edit_product(product_id):
             product.energy_cost = form.energy_cost.data
             product.packaging_size = form.packaging_size.data
             product.storage_locationID = form.storage_locationID.data
+            product.price = form.price.data
 
             # Pas de wijzigingen toe in de database
             product.edit()
@@ -221,19 +235,27 @@ def edit_product(product_id):
             if form.suppliers.data:
                 product.clear_suppliers()
                 for supplier_id in form.suppliers.data:
-                    print(supplier_id)
                     product.add_supplier(supplier_id)
 
             flash(f"Product '{product.name}' is succesvol bijgewerkt.", "success")
             return redirect(url_for("products"))
         except Exception as e:
-            flash(f"Er is een fout opgetreden: {str(e)}", "danger")
+            flash(f"An error has occurred", "danger")
+            logger.error(f" A critical error has occurred in  edit_product(): {e} ")
 
-    if form.errors:
-        print("Form Errors:", form.errors)
 
     # Render het formulier als de submit faalt of GET-methode
     return render_template("products/product_edit_form.html", form=form, product_id=product_id)
+
+
+@app.route("/products_list_view")
+def product_list_view():
+    try:
+        return render_template("products/products_view.html")
+    except Error as e:
+        abort(500)
+        logger.error(f" A critical error has occurred in  product_list_view(): {e} ")
+    
 
 
 @app.route("/suppliers")
@@ -245,18 +267,18 @@ def suppliers():
 
     except Error as e:
         abort(500)
+        logger.error(f" A critical error has occurred in  suppliers(): {e} ")
    
   
 
 
 @app.route("/suppliers/<int:supplier_id>")
 def supplier_view(supplier_id):
-    print(supplier_id)
     try:
         # Haal de specifieke leverancier op
         supplier = Supplier.get_by_id(supplier_id)
         if not supplier:
-            return jsonify({"error": "Supplier not found"}), 404
+            abort(404)
 
         # Haal producten op die aan de leverancier gekoppeld zijn
 
@@ -265,15 +287,15 @@ def supplier_view(supplier_id):
 
     except Error as e:
         abort(500)
-    finally:
-        print("Done")
+        logger.error(f" A critical error has occurred in  supplier_view(): {e} ")
+   
 
 
 @app.route("/suppliers/create", methods=["GET", "POST"])
 def supplier_create():
+    
     if request.method == "POST":
-        # Print formulierdata
-        print(request.form)
+        
 
         name = request.form.get("name")
         phone_number = request.form.get("phone_number")
@@ -281,10 +303,6 @@ def supplier_create():
         house_number = request.form.get("house_number")
         postal_code = request.form.get("postal_code")
         website = request.form.get("website")
-
-        print(
-            f"Received data: {name}, {phone_number}, {street_name}, {house_number}, {postal_code}, {website}"
-        )
 
         # Maak een nieuwe leverancier
         new_supplier = Supplier(
@@ -296,18 +314,19 @@ def supplier_create():
             website=website,
         )
         try:
+            
             new_supplier.create()
             return redirect(url_for("suppliers"))
         except Error as e:
-            print(f"Error: {e}")
             abort(500)
+            logger.error(f" A critical error has occurred in  supplier_create(): {e} ")
 
     return render_template("suppliers/supplier_create.html")
 
 
 @app.route("/suppliers/edit/<int:supplier_id>", methods=["GET", "POST"])
 def supplier_edit(supplier_id):
-    # Haal de bestaande gegevens van de leverancier op
+
     supplier = Supplier.get_by_id(supplier_id)
     if not supplier:
         abort(404)
@@ -325,7 +344,7 @@ def supplier_edit(supplier_id):
             supplier.edit()
             return redirect(url_for("suppliers"))  # Redirect naar leverancierslijst
         except Error as e:
-            print(f"Error: {e}")
+            logger.error(f" A critical error has occurred in  supplier_edit(): {e} ")
             abort(500)
 
     # Render het formulier met de bestaande gegevens
@@ -339,12 +358,12 @@ def orders():
         return render_template("orders/orders.html")
     except Error as e:
         abort(500)
+        logger.error(f" A critical error has occurred in  orders(): {e} ")
         
         
 @app.route('/orders/<int:order_id>')
 
 def order_details(order_id):
-    # Example data passed to the template
     order = {
         "order_number": 1,
         "customer_name": "yazan sweed",
@@ -387,6 +406,89 @@ def order_details(order_id):
 
 
     
+
+@app.route("/customers")
+def customers():
+    try:
+        return render_template("customers/customers.html")
+    except Error as e:
+        logger.error(f" A critical error has occurred in  customers(): {e} ")
+        abort(500)
+
+
+
+@app.route("/customers/<int:customer_id>")
+def customer_view(customer_id):
+    try:
+        customer = Customer.get_by_id(customer_id)
+        if not customer:
+            abort(404)
+            
+        return render_template("customers/customer_view.html", customer=customer)
+    except Error as e:
+        logger.error(f" A critical error has occurred in  customer_view(): {e} ")
+        abort(500)
+
+
+@app.route("/customers/edit/<int:customer_id>", methods=["GET", "POST"])
+def customer_edit(customer_id):
+    customer = Customer.get_by_id(customer_id)
+    if not customer:
+        abort(404)
+    form = CustomerForm(obj=customer)  # Vul het formulier met bestaande klantgegevens
+    if form.validate_on_submit():
+        # Werk de klantgegevens bij met de gegevens uit het formulier
+        customer.name = form.name.data
+        customer.phone_number = form.phone_number.data
+        customer.email = form.email.data
+        customer.street_name = form.street_name.data
+        customer.house_number = form.house_number.data
+        customer.postal_code = form.postal_code.data
+        customer.city = form.city.data
+
+        try:
+            customer.edit()
+            return redirect(url_for("customers"))
+        except Error as e:
+            logger.error(f" A critical error has occurred in  customer_edit(): {e} ")
+            abort(500)
+
+    return render_template("customers/customer_edit.html", form=form, customer_id=customer_id)
+
+
+
+
+@app.route("/customers/create", methods=["GET", "POST"])
+def customer_create():
+    form = CustomerForm()
+    if form.validate_on_submit():
+        # Maak een nieuwe klant aan met de gegevens uit het formulier
+        new_customer = Customer(
+            name=form.name.data,
+            phone_number=form.phone_number.data,
+            email=form.email.data,
+            street_name=form.street_name.data,
+            house_number=form.house_number.data,
+            postal_code=form.postal_code.data,
+            city=form.city.data,
+        )
+        try:
+            new_customer.create()
+            return redirect(url_for("customers"))
+        except Error as e:
+            logger.error(f" A critical error has occurred in  customer_create(): {e} ")
+            abort(500)
+
+    return render_template("customers/customer_create.html", form=form)
+
+
+
+
+
+
+
+
+
 
 @app.route("/send-email")
 def send_email():

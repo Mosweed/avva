@@ -1,0 +1,153 @@
+{% extends "base.html" %} {% block title %}Products{% endblock %} 
+
+{%block hero %} Products {%endblock%}
+{% block
+content %}
+
+
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <input type="text" id="searchBox" class="form-control w-50 mb-4" placeholder="Zoek naar producten...">
+    </div>
+    <div class="row justify-content-center" id="productContainer">
+        <!-- Dynamisch geladen productkaarten komen hier -->
+    </div>
+    <nav aria-label="Paginering" class="mt-4">
+        <ul class="pagination justify-content-center" id="pagination">
+            <!-- Dynamisch geladen paginering komt hier -->
+        </ul>
+    </nav>
+</div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+
+
+   
+        
+        let currentPage = 1;
+        let totalPages = 1;
+        const rowsPerPage = 12;
+
+        function loadProducts(search = "", page = 1) {
+            $.ajax({
+                url: '/api/products',
+                type: 'POST',
+                data: {
+                    draw: 1,
+                    start: (page - 1) * rowsPerPage,
+                    length: rowsPerPage,
+                    search: { value: search }
+                },
+                success: function (response) {
+                    const products = response.aaData;
+                    const container = $('#productContainer');
+                    container.empty();
+                    if (products.length === 0) {
+                        // Toon melding als er geen producten zijn
+                        container.append(`
+                            <div class="text-center">
+                                <img src="https://42f2671d685f51e10fc6-b9fcecea3e50b3b59bdc28dead054ebc.ssl.cf5.rackcdn.com/v2/assets/empty.svg" 
+                                     alt="No results found" 
+                                     style="max-width: 150px;">
+                                <p class="mt-2">No results found</p>
+                            </div>
+                        `);
+                    } else {
+                    products.forEach(product => {
+                        const productCard = `
+                            <div class="col-sm-6 col-md-4 col-lg-4 mb-4 d-flex justify-content-center">
+                                <div class="product-card text-center">
+                                    <img src="https://fakeimg.pl/350x200/?text=${product.name}" alt="${product.name}">
+                                    <h5 class="mt-2">${product.name}</h5>
+                                    <p>Article number: ${product.article_number}</p>
+                                    <p>stock: ${product.stock}</p>
+                                    <p>Minimum stock: ${product.minimum_stock}</p>
+                                    <p>price: €${product.price}</p>
+                                    <form class="d-flex flex-column align-items-center">
+                                        <input type="number" class="form-control mb-2" id="quantity-${product.productID}" placeholder="quantity" min="1" max="${product.stock}" required>
+                                        <button class="btn btn-primary" onclick="addToCart(${product.productID}, ${product.stock})"> addToCart</button>
+
+                                    
+                                    </form>
+                                </div>
+                            </div>
+                        `;
+                        container.append(productCard);
+                    }); 
+                    
+                }
+                    // Paginering
+                    updatePagination(response.iTotalDisplayRecords, page);
+                },
+                error: function (error) {
+                    console.error('Fout bij het laden van producten:', error);
+                }
+            });
+        }
+
+        function updatePagination(totalItems, currentPage) {
+            totalPages = Math.ceil(totalItems / rowsPerPage);
+            const pagination = $('#pagination');
+            pagination.empty();
+
+            for (let i = 1; i <= totalPages; i++) {
+                const activeClass = i === currentPage ? 'active' : '';
+                pagination.append(`
+                    <li class="page-item ${activeClass}">
+                        <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+                    </li>
+                `);
+            }
+        }
+
+        function changePage(page) {
+            if (page >= 1 && page <= totalPages) {
+                currentPage = page;
+                const search = $('#searchBox').val();
+                loadProducts(search, currentPage);
+            }
+        }
+
+        $(document).ready(function () {
+            // Laad producten bij opstart
+            loadProducts();
+
+            // Zoekfunctionaliteit
+            $('#searchBox').on('input', function () {
+                const search = $(this).val();
+                currentPage = 1; // Reset naar pagina 1 bij nieuwe zoekactie
+                loadProducts(search, currentPage);
+            });
+        });
+
+
+        function addToCart(productID , stock) {
+            const quantity = $(`#quantity-${productID}`).val();
+
+            if (!quantity || quantity <= 0)  {
+                return;
+            }
+
+            if (quantity > stock) {
+                return;
+            }
+           
+
+            $.ajax({
+                url: '/api/cart/add', // Dit moet verwijzen naar je winkelwagen-API
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ productID, quantity }),
+                success: function (response) {
+                    alert(`Product ${productID} (${quantity}x) toegevoegd aan winkelwagen!`);
+                },
+                error: function (error) {
+                    console.error('Fout bij toevoegen aan winkelwagen:', error);
+                }
+            });
+        }
+
+    </script>
+
+{% endblock %}

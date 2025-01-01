@@ -10,11 +10,26 @@
             <form method="POST" action="{{ url_for('product_create') }}">
                 {{ form.hidden_tag() }}
                 <div class="row mb-3">
-                  
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <ul>
+                            {% for field, errors in form.errors.items() %}
+                                {% for error in errors %}
+                                    <li>{{ field }}: {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
                     <div class="col-md-6">
                         {{ form.name.label(class="form-label") }}
                         {{ form.name(class="form-control bg-dark text-light") }}
                     </div>
+
+                    <div class="col-md-6">
+                        {{ form.price.label(class="form-label") }}
+                        {{ form.price(class="form-control bg-dark text-light") }}
+                        </div>
                 </div>
 
                 <div class="row mb-3">

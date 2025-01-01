@@ -20,6 +20,7 @@ class Product(db):
         storage_locationID=None,
         advice=None,
         storage_location=None,
+        price=None,
         suppliers=None,
     ):
         self.productID = productID
@@ -34,6 +35,7 @@ class Product(db):
         self.storage_locationID = storage_locationID
         self.advice = advice
         self.storage_location = storage_location
+        self.price = price
         self.suppliers = []
 
     @staticmethod
@@ -67,6 +69,7 @@ inner join storage_advice sa on sa.adviceID = p.adviceID where
                         storage_locationID=row["storage_locationID"],
                         advice=row["advice"],
                         storage_location=row["storage_location"],
+                        price=row["price"],
                     )
             except Error as e:
                 print(f"Error: {e}")
@@ -108,7 +111,9 @@ inner join storage_advice sa on sa.adviceID = p.adviceID where
                         energy_cost=row["energy_cost"],
                         packaging_size=row["packaging_size"],
                         storage_locationID=row["storage_locationID"],
+                        price=row["price"],
                         advice=row["advice"],
+                        
                         storage_location=row["storage_location"],
                     )
                     products.append(product)
@@ -138,9 +143,10 @@ INSERT INTO `products` (
     `adviceID`,
     `energy_cost`,
     `packaging_size`,
-    `storage_locationID`
+    `storage_locationID`,
+    `price`
 ) VALUES (
-    %s, %s, %s, %s, %s, %s, %s, %s, %s
+    %s, %s, %s, %s, %s, %s, %s, %s, %s , %s
 );
 """
                 cursor.execute(
@@ -155,6 +161,7 @@ INSERT INTO `products` (
                         self.energy_cost,
                         self.packaging_size,
                         self.storage_locationID,
+                        self.price,
                     ),
                 )
                 connection.commit()
@@ -187,7 +194,8 @@ INSERT INTO `products` (
                     `adviceID` = %s,
                     `energy_cost` = %s,
                     `packaging_size` = %s,
-                    `storage_locationID` = %s
+                    `storage_locationID` = %s,
+                    `price` = %s
                 WHERE `productID` = %s;
                 """
 
@@ -205,6 +213,7 @@ INSERT INTO `products` (
                         self.packaging_size,
                         self.storage_locationID,
                         self.productID,
+                        self.price,
                     ),
                 )
 

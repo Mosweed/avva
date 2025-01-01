@@ -50,7 +50,7 @@
     responsive: true,
     serverSide: true,
     ajax: {
-      url: "/api/order", // Update endpoint to match your API
+      url: "/api/orders", // Update endpoint to match your API
       type: "POST",
       error: function (xhr, error, thrown) {
         console.error("Error fetching data:", xhr);
@@ -69,7 +69,7 @@
         className: "text-center",
         responsivePriority: 1,
         defaultContent:
-          '<button class="btn btn-sm btn-primary edit-btn">Edit</button> <button class="btn btn-sm btn-danger delete-btn">Delete</button> <button class="btn btn-sm btn-info view-btn">View</button>',
+          '<button class="btn btn-sm btn-danger delete-btn">Delete</button> <button class="btn btn-sm btn-info view-btn">View</button>',
       },
     ],
     ordering: false,
