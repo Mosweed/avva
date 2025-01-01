@@ -2,36 +2,48 @@
 {% block title %}Edit Supplier{% endblock %}
 
 {% block content %}
+
+{% if form.errors %}
+<div class="alert alert-danger">
+    <ul>
+        {% for field, errors in form.errors.items() %}
+            {% for error in errors %}
+                <li>{{ field }}: {{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
 <div class="container mt-5">
-    <a href="{{ url_for('suppliers') }}" class="btn btn-black mb-3">&larr; Back</a>
+    <a href="{{ url_for('suppliers') }}" class="btn btn-secondary mb-3">&larr; Back</a>
     <h1 class="text-center mb-4">Edit Supplier</h1>
-    <div class="card bg-dark text-light">
+    <div class="card bg-light text-dark">
         <div class="card-body">
-            <form method="POST" action="{{ url_for('supplier_edit', supplier_id=supplier.supplierID) }}">
-                
+            <form method="POST" action="{{ url_for('supplier_edit', supplier_id=supplier_id) }}">
+                {{ form.hidden_tag() }}
                 <div class="mb-3">
                     <label for="name" class="form-label">Supplier Name</label>
-                    <input type="text" class="form-control" id="name" name="name" value="{{ supplier.name }}" required>
+                    {{ form.name(class_="form-control") }}
                 </div>
                 <div class="mb-3">
                     <label for="phone_number" class="form-label">Phone Number</label>
-                    <input type="text" class="form-control" id="phone_number" name="phone_number" value="{{ supplier.phone_number }}" required>
+                    {{ form.phone_number(class_="form-control") }}
                 </div>
                 <div class="mb-3">
                     <label for="street_name" class="form-label">Street Name</label>
-                    <input type="text" class="form-control" id="street_name" name="street_name" value="{{ supplier.street_name }}" required>
+                    {{ form.street_name(class_="form-control") }}
                 </div>
                 <div class="mb-3">
                     <label for="house_number" class="form-label">House Number</label>
-                    <input type="text" class="form-control" id="house_number" name="house_number" value="{{ supplier.house_number }}" required>
+                    {{ form.house_number(class_="form-control") }}
                 </div>
                 <div class="mb-3">
                     <label for="postal_code" class="form-label">Postal Code</label>
-                    <input type="text" class="form-control" id="postal_code" name="postal_code" value="{{ supplier.postal_code }}" required>
+                    {{ form.postal_code(class_="form-control") }}
                 </div>
                 <div class="mb-3">
                     <label for="website" class="form-label">Website</label>
-                    <input type="text" class="form-control" id="website" name="website" value="{{ supplier.website }}">
+                    {{ form.website(class_="form-control") }}
                 </div>
                 <button type="submit" class="btn btn-success w-100">Save Changes</button>
             </form>

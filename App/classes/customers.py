@@ -54,6 +54,7 @@ class Customer(db):
                 connection.commit()
                 self.customerID = cursor.lastrowid
             except Error as e:
+                
                 print(f"Error during customer creation: {e}")                
             finally:
                 cursor.close()
@@ -97,6 +98,25 @@ class Customer(db):
             try:
                 query = "SELECT * FROM customers WHERE customerID = %s"
                 cursor.execute(query, (customerID,))
+                row = cursor.fetchone()
+                if row:
+                    return Customer(**row)
+            except Error as e:
+                print(f"Error during customer retrieval: {e}")
+            finally:
+                cursor.close()
+                connection.close()
+        return None
+    
+    @staticmethod
+    def get_by_email(email):
+        """ Fetch a customer by its ID """
+        connection = Customer.create_connection()
+        if connection:
+            cursor = connection.cursor(dictionary=True)
+            try:
+                query = "SELECT * FROM customers WHERE email = %s"
+                cursor.execute(query, (email,))
                 row = cursor.fetchone()
                 if row:
                     return Customer(**row)

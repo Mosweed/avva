@@ -18,8 +18,8 @@ from flask_mail import Message
 from flask import session
 import random
 import string
-
-from App.form.customerform import CustomerForm
+from App.form.supplierform import SupplierForm ,EditSupplierForm
+from App.form.customerform import CustomerForm ,EditCustomerForm
 from App.form.productform import ProductForm, EditProductForm
 
 from logging_config import logger
@@ -293,17 +293,17 @@ def supplier_view(supplier_id):
 
 @app.route("/suppliers/create", methods=["GET", "POST"])
 def supplier_create():
+    form = SupplierForm()
+    if form.validate_on_submit():
     
-    if request.method == "POST":
+
+        name = form.name.data
+        phone_number = form.phone_number.data
+        street_name = form.street_name.data
+        house_number = form.house_number.data
+        postal_code = form.postal_code.data
+        website = form.website.data
         
-
-        name = request.form.get("name")
-        phone_number = request.form.get("phone_number")
-        street_name = request.form.get("street_name")
-        house_number = request.form.get("house_number")
-        postal_code = request.form.get("postal_code")
-        website = request.form.get("website")
-
         # Maak een nieuwe leverancier
         new_supplier = Supplier(
             name=name,
@@ -316,12 +316,13 @@ def supplier_create():
         try:
             
             new_supplier.create()
+            flash("Supplier added successfully!", "success")
             return redirect(url_for("suppliers"))
         except Error as e:
             abort(500)
             logger.error(f" A critical error has occurred in  supplier_create(): {e} ")
 
-    return render_template("suppliers/supplier_create.html")
+    return render_template("suppliers/supplier_create.html" , form=form)
 
 
 @app.route("/suppliers/edit/<int:supplier_id>", methods=["GET", "POST"])
@@ -330,25 +331,36 @@ def supplier_edit(supplier_id):
     supplier = Supplier.get_by_id(supplier_id)
     if not supplier:
         abort(404)
-    if request.method == "POST":
+        
+    form = EditSupplierForm(
+        supplier_id=supplier.supplierID,
+        name=supplier.name,
+        phone_number=supplier.phone_number,
+        street_name=supplier.street_name,
+        house_number=supplier.house_number,
+        postal_code=supplier.postal_code,
+        website=supplier.website,
+    )
         # Haal de geüpdatete gegevens op uit het formulier
-        supplier.name = request.form.get("name")
-        supplier.phone_number = request.form.get("phone_number")
-        supplier.street_name = request.form.get("street_name")
-        supplier.house_number = request.form.get("house_number")
-        supplier.postal_code = request.form.get("postal_code")
-        supplier.website = request.form.get("website")
+    if form.validate_on_submit():
+        supplier.name = form.name.data
+        supplier.phone_number = form.phone_number.data
+        supplier.street_name = form.street_name.data
+        supplier.house_number = form.house_number.data
+        supplier.postal_code = form.postal_code.data
+        supplier.website = form.website.data
 
         try:
             # Update de leverancier in de database
             supplier.edit()
+            flash("Supplier updated successfully!", "success")
             return redirect(url_for("suppliers"))  # Redirect naar leverancierslijst
         except Error as e:
             logger.error(f" A critical error has occurred in  supplier_edit(): {e} ")
             abort(500)
 
     # Render het formulier met de bestaande gegevens
-    return render_template("suppliers/supplier_edit.html", supplier=supplier)
+    return render_template("suppliers/supplier_edit.html", form=form, supplier_id=supplier_id)
 
 
 
@@ -435,9 +447,23 @@ def customer_edit(customer_id):
     customer = Customer.get_by_id(customer_id)
     if not customer:
         abort(404)
-    form = CustomerForm(obj=customer)  # Vul het formulier met bestaande klantgegevens
+    form = EditCustomerForm(
+        customer_id=customer.customerID,
+        name=customer.name,
+        phone_number=customer.phone_number,
+        email=customer.email,
+        street_name=customer.street_name,
+        house_number=customer.house_number,
+        postal_code=customer.postal_code,
+        city=customer.city,
+        
+    ) 
+    
+    print(form.customer_id.data)
+    # Vul het formulier met bestaande klantgegevens
     if form.validate_on_submit():
         # Werk de klantgegevens bij met de gegevens uit het formulier
+        
         customer.name = form.name.data
         customer.phone_number = form.phone_number.data
         customer.email = form.email.data

@@ -27,7 +27,6 @@ SUPPLIERS = Supplier.get_id_and_name()
 
 class ProductForm(FlaskForm):
 
-    productID = StringField("Product ID", render_kw={"readonly": True})
     name = StringField("Name", validators=[DataRequired()])
     article_number = StringField("Article Number", render_kw={"readonly": True})
     stock = IntegerField("Stock", validators=[NumberRange(min=0), DataRequired()])
