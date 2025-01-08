@@ -18,8 +18,21 @@ content %}
         </ul>
     </nav>
 </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.colVis.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/rowgroup/1.3.1/js/dataTables.rowGroup.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css"
+/>
     <script>
 
 
@@ -65,8 +78,9 @@ content %}
                                     <p>Minimum stock: ${product.minimum_stock}</p>
                                     <p>price: €${product.price}</p>
                                     <form class="d-flex flex-column align-items-center">
+                                        <input type="hidden" id="productID-${product.productID}" value="${product.productID}">
                                         <input type="number" class="form-control mb-2" id="quantity-${product.productID}" placeholder="quantity" min="1" max="${product.stock}" required>
-                                        <button class="btn btn-primary" onclick="addToCart(${product.productID}, ${product.stock})"> addToCart</button>
+                                        <button class="btn btn-primary" onclick="addToCart( event, ${product.productID} , ${product.stock})"> addToCart</button>
 
                                     
                                     </form>
@@ -122,7 +136,8 @@ content %}
         });
 
 
-        function addToCart(productID , stock) {
+        function addToCart(event, productID, stock) {
+            event.preventDefault();
             const quantity = $(`#quantity-${productID}`).val();
 
             if (!quantity || quantity <= 0)  {
@@ -135,18 +150,23 @@ content %}
            
 
             $.ajax({
-                url: '/api/cart/add', // Dit moet verwijzen naar je winkelwagen-API
+                url: '/api/cart/add',
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({ productID, quantity }),
                 success: function (response) {
-                    alert(`Product ${productID} (${quantity}x) toegevoegd aan winkelwagen!`);
+                    alert('Product added to cart');
+                    loadProducts();
+
+                  
                 },
                 error: function (error) {
-                    console.error('Fout bij toevoegen aan winkelwagen:', error);
+                    alert('Failed to add product to cart');
                 }
             });
         }
+
+        
 
     </script>
 

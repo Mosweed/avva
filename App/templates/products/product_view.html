@@ -78,7 +78,38 @@
                     {% endfor %}
                 </ul>
             </div>
+            <div class="mb-3">
+                <h5>Price History</h5>
+                <table class="table table-dark table-striped">
+                    <thead>
+                        <tr>
+                            <th>Price</th>
+                            <th>End Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
 
+                        {% if price_history %}
+
+                        {% for history in price_history %}
+                        <tr>
+                            <td>{{ history.price }}</td>
+                            <td>{{ history.eind_date }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr class="text-center">
+                            <td colspan="7">
+                                <img src="https://42f2671d685f51e10fc6-b9fcecea3e50b3b59bdc28dead054ebc.ssl.cf5.rackcdn.com/v2/assets/empty.svg" 
+                                     alt="No results found" 
+                                     style="max-width: 150px;">
+                                <p class="mt-2">No results found</p>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
            
         </div>
     </div>

@@ -1,111 +1,137 @@
 {% extends "base.html" %}
 
-{% block title %}Orders{% endblock %}
+{% block title %}Customer and Order Details{% endblock %}
 
-{% block hero %} Order #{{ order.order_number }} Details {% endblock %}
+{% block hero %} Customer and Order Details {% endblock %}
 
-{% block content %} 
+{% block content %}
 <div class="container my-5">
-
+    <a href="{{ url_for('orders') }}" class="btn btn-black mb-3">&larr; Back</a>
+    <h2>Customer Details</h2>
     <div class="card mb-4">
         <div class="card-body">
             <form>
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label for="orderNumber" class="form-label">Order Number</label>
-                        <input type="text" class="form-control" id="orderNumber" value="{{ order.order_number }}" readonly>
+                        <label for="customerID" class="form-label">Customer ID</label>
+                        <input type="text" class="form-control" id="customerID" value="{{ customer.customerID }}" readonly>
                     </div>
                     <div class="col-md-6">
-                        <label for="customerName" class="form-label">Customer Name</label>
-                        <input type="text" class="form-control" id="customerName" value="{{ order.customer_name }}" readonly>
+                        <label for="customerName" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="customerName" value="{{ customer.name }}" readonly>
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label for="total" class="form-label">Total</label>
-                        <input type="text" class="form-control" id="total" value="{{ order.total }}" readonly>
+                        <label for="phone" class="form-label">Phone Number</label>
+                        <input type="text" class="form-control" id="phone" value="{{ customer.phone_number }}" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" value="{{ customer.email }}" readonly>
                     </div>
                 </div>
 
                 <div class="row mb-3">
-                    <div class="col-md-12">
-                        <label for="status" class="form-label">Status</label>
-                        <form method="post" >
-                            <select name="status" id="status" class="form-select">
-                                {% for status in order.status_options %}
-                                <option value="{{ status }}" {% if status == order.current_status %}selected{% endif %}>
-                                    {{ status }}
-                                </option>
-                                {% endfor %}
-                            </select>
+                    <div class="col-md-4">
+                        <label for="street" class="form-label">Street Name</label>
+                        <input type="text" class="form-control" id="street" value="{{ customer.street_name }}" readonly>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="house" class="form-label">House Number</label>
+                        <input type="text" class="form-control" id="house" value="{{ customer.house_number }}" readonly>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="postalCode" class="form-label">Postal Code</label>
+                        <input type="text" class="form-control" id="postalCode" value="{{ customer.postal_code }}" readonly>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="city" class="form-label">City</label>
+                        <input type="text" class="form-control" id="city" value="{{ customer.city }}" readonly>
                     </div>
                 </div>
-                
 
-                <button type="submit" class="btn btn-success w-100">Save</button>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="annualRevenue" class="form-label">Annual Revenue</label>
+                        <input type="text" class="form-control" id="annualRevenue" value="{{ customer.annual_revenue }}" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="discount" class="form-label">Customer Discount</label>
+                        <input type="text" class="form-control" id="discount" value="{{ customer.customer_discount }}" readonly>
+                    </div>
+                </div>
             </form>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-6">
-            <h4 class="text-center">Invoice Address</h4>
-            <div class="card">
-                <div class="card-body">
-                    <form>
-                        {% for key, value in order.invoice_address.items() %}
-                        <div class="mb-3">
-                            <label class="form-label">{{ key.replace('_', ' ').title() }}</label>
-                            <input type="text" class="form-control" value="{{ value }}" readonly>
-                        </div>
-                        {% endfor %}
-                    </form>
+    <h2>Order Details</h2>
+    <div class="card mb-4">
+        <div class="card-body">
+            <form>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="orderID" class="form-label">Order ID</label>
+                        <input type="text" class="form-control" id="orderID" value="{{ order.orderID }}" readonly>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="orderDate" class="form-label">Order Date</label>
+                        <input type="text" class="form-control" id="orderDate" value="{{ order.date }}" readonly>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="deliveryTime" class="form-label">Delivery Time</label>
+                        <input type="text" class="form-control" id="deliveryTime" value="{{ order.delivery_time }}" readonly>
+                    </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="col-md-6">
-            <h4 class="text-center">Shipping Address</h4>
-            <div class="card">
-                <div class="card-body">
-                    <form>
-                        {% for key, value in order.shipping_address.items() %}
-                        <div class="mb-3">
-                            <label class="form-label">{{ key.replace('_', ' ').title() }}</label>
-                            <input type="text" class="form-control" value="{{ value }}" readonly>
-                        </div>
-                        {% endfor %}
-                    </form>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="status" class="form-label">Status</label>
+                        <input type="text" class="form-control" id="status" value="{{ order.status }}" readonly>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="urgent" class="form-label">Urgent</label>
+                        <input type="text" class="form-control" id="urgent" value="{{ 'Yes' if order.urgent == 1 else 'No' }}" readonly>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="trackingCode" class="form-label">Tracking Code</label>
+                        <input type="text" class="form-control" id="trackingCode" value="{{ order.tracking_code }}" readonly>
+                    </div>
                 </div>
-            </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="deliveryAddress" class="form-label">Delivery Address</label>
+                        <textarea class="form-control" id="deliveryAddress" readonly>{{ order.delivery_house_number }}, {{ order.delivery_postal_code }}, {{ order.delivery_city }}</textarea>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 
-    <h4 class="mt-5 text-center">Order Items</h4>
+    <h2>Order Lines</h2>
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-bordered">
                     <thead>
                         <tr>
-                            <th>Order Item ID</th>
+                            <th>Order Line ID</th>
                             <th>Product Name</th>
-                            <th>Status</th>
-                            <th>Product Price</th>
-                            <th>Amount</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
                             <th>Total</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for item in order.order_items %}
+                        {% for line in order_lines %}
                         <tr>
-                            <td>{{ item.id }}</td>
-                            <td>{{ item.product_name }}</td>
-                            <td><span class="badge bg-warning text-dark">{{ item.status }}</span></td>
-                            <td>&euro;{{ item.price }}</td>
-                            <td>{{ item.amount }}</td>
-                            <td>&euro;{{ item.total }}</td>
+                            <td>{{ line.order_lineID }}</td>
+                            <td>{{ line.name }}</td>
+                            <td>{{ line.quantity }}</td>
+                            <td>&euro;{{ line.price }}</td>
+                            <td>&euro;{{ line.price * line.quantity }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>

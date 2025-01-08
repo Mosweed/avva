@@ -21,24 +21,10 @@ class Customer(db):
 
   
 
-    def validate(self):
-        """ Validate customer fields """
-        if not self.name or len(self.name) < 2:
-            raise ValueError("Customer name must be at least 2 characters long.")
-        if not self.phone_number or len(self.phone_number) < 7:
-            raise ValueError("Invalid phone number.")
-        if not self.email or "@" not in self.email:
-            raise ValueError("Invalid email address.")
-        if not self.postal_code or len(self.postal_code) < 6:
-            raise ValueError("Invalid postal code .")
+    
 
     def create(self):
         """ Create a new customer in the database """
-        try:
-            self.validate()
-        except ValueError as e:
-            print(f"Error: {e}")
-            return
 
         connection = self.create_connection()
         if connection:
@@ -64,11 +50,6 @@ class Customer(db):
         """ Edit an existing customer in the database """
         if not self.customerID:
             raise ValueError("Cannot edit a customer without a valid customerID.")
-
-        try:
-            self.validate()
-        except ValueError as e:
-            return
 
         connection = self.create_connection()
         if connection:

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Checkout{% endblock %}
+
+{% block hero %} Checkout Form {% endblock %}
+{% block content %}
+
+<div class="container mt-5">
+    <div class="card bg-dark text-light">
+        <div class="card-body">
+            <form method="POST">
+                {{ form.hidden_tag() }}
+
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <ul>
+                            {% for field, errors in form.errors.items() %}
+                                {% for error in errors %}
+                                    <li>{{ field }}: {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        {{ form.date.label(class="form-label") }}
+                        {{ form.date(class="form-control bg-dark text-light") }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.delivery_time.label(class="form-label") }}
+                        {{ form.delivery_time(class="form-select bg-dark text-light") }}
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        {{ form.tracking_code.label(class="form-label") }}
+                        {{ form.tracking_code(class="form-control bg-dark text-light", readonly=True) }}
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            {{ form.urgent(class="form-check-input bg-dark border-light") }}
+                            {{ form.urgent.label(class="form-check-label") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        {{ form.delivery_postal_code.label(class="form-label") }}
+                        {{ form.delivery_postal_code(class="form-control bg-dark text-light") }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.delivery_house_number.label(class="form-label") }}
+                        {{ form.delivery_house_number(class="form-control bg-dark text-light") }}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    {{ form.delivery_city.label(class="form-label") }}
+                    {{ form.delivery_city(class="form-control bg-dark text-light") }}
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

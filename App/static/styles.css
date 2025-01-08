@@ -160,6 +160,20 @@ h1 {
     border-radius: 8px;
 }
 
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1); /* Maakt de icoon wit */
+}
+
+.form-label {
+    font-weight: bold;
+    color: white;
+}
+
+
+.hidden{
+    display:none;
+}
+
 @media (max-width:767px){
     .wrapper h2{
         font-size:2rem;

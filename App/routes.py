@@ -8,12 +8,15 @@ from flask import (
     flash,
     abort
 )
+
+import time
 from app import app, mail
 import mysql.connector
 from mysql.connector import Error
 from App.classes.products import Product
 from App.classes.suppliers import Supplier
 from App.classes.customers import Customer
+from App.classes.orders import Order
 from flask_mail import Message
 from flask import session
 import random
@@ -21,6 +24,7 @@ import string
 from App.form.supplierform import SupplierForm ,EditSupplierForm
 from App.form.customerform import CustomerForm ,EditCustomerForm
 from App.form.productform import ProductForm, EditProductForm
+from App.form.checkoutform import CheckoutForm
 
 from logging_config import logger
 
@@ -119,7 +123,9 @@ def product(product_id):
         if not product:
             abort( 404)
         suppliers = product.get_suppliers()
-        return render_template("products/product_view.html", product=product, suppliers=suppliers)
+        price_history = product.get_price_history()
+        
+        return render_template("products/product_view.html", product=product, suppliers=suppliers , price_history=price_history)
     except Error as e:
         abort(500)
         logger.error(f" A critical error has occurred in  product(): {e} ")
@@ -196,6 +202,7 @@ def edit_product(product_id):
         abort(404)
    
 
+    prise = product.price
     # Vul product_data met gegevens uit de database
     product_data = {
         "productID": product.productID,
@@ -218,6 +225,9 @@ def edit_product(product_id):
     if form.validate_on_submit():
         try:
             # Update product-object met nieuwe data
+            
+            print(form.name.data)
+            
             product.name = form.name.data
             product.stock = form.stock.data
             product.minimum_stock = form.minimum_stock.data
@@ -228,8 +238,10 @@ def edit_product(product_id):
             product.storage_locationID = form.storage_locationID.data
             product.price = form.price.data
 
-            # Pas de wijzigingen toe in de database
             product.edit()
+            
+            if prise != form.price.data:
+                product.update_price_history(prise)
 
             # Werk de leveranciers bij als dat nodig is
             if form.suppliers.data:
@@ -248,13 +260,13 @@ def edit_product(product_id):
     return render_template("products/product_edit_form.html", form=form, product_id=product_id)
 
 
-@app.route("/products_list_view")
-def product_list_view():
+@app.route("/products_list")
+def products_list():
     try:
-        return render_template("products/products_view.html")
+        return render_template("products/products_list.html")
     except Error as e:
         abort(500)
-        logger.error(f" A critical error has occurred in  product_list_view(): {e} ")
+        logger.error(f" A critical error has occurred in  product_list(): {e} ")
     
 
 
@@ -376,45 +388,60 @@ def orders():
 @app.route('/orders/<int:order_id>')
 
 def order_details(order_id):
-    order = {
-        "order_number": 1,
-        "customer_name": "yazan sweed",
-        "total": 37.39,
-        "payment_status": "Not Paid",
-        "status_options": ["New", "In Progress", "Sent", "Delivered", "Canceled"],
-        "current_status": "In Progress",
-        "invoice_address": {
-            "company_name": "",
-            "email": "admin@gmail.com",
-            "phone": "0612345678",
-            "street": "koolhoensraat",
-            "house_number": "3",
-            "postal_code": "6035 GO",
-            "place": "opel",
-            "country": "Nederland"
-        },
-        "shipping_address": {
-            "company_name": "",
-            "email": "admin@gmail.com",
-            "phone": "0612345678",
-            "street": "koolhoensraat",
-            "house_number": "3",
-            "postal_code": "6035 GO",
-            "place": "opel",
-            "country": "Nederland"
-        },
-        "order_items": [
-            {
-                "id": 1,
-                "product_name": "Monseame Senger",
-                "status": "In behandeling",
-                "price": 9.12,
-                "amount": 5,
-                "total": 45.60
-            }
-        ]
-    }
-    return render_template('orders/order_details.html', order=order)
+    
+    
+    order = Order.get_order_by_id(order_id)
+    if not order:
+        abort(404)
+        
+    totale = Order.get_order_total_by_id(order_id)
+    
+    customer = Order.get_order_customer_info_by_id(order_id)
+    
+    order_lines = Order.get_order_lines_by_id(order_id)
+    
+    # order = {
+    #     "order_number": 1,
+    #     "customer_name": "yazan sweed",
+    #     "total": 37.39,
+    #     "payment_status": "Not Paid",
+    #     "status_options": ["New", "In Progress", "Sent", "Delivered", "Canceled"],
+    #     "current_status": "In Progress",
+    #     "invoice_address": {
+    #         "company_name": "",
+    #         "email": "admin@gmail.com",
+    #         "phone": "0612345678",
+    #         "street": "koolhoensraat",
+    #         "house_number": "3",
+    #         "postal_code": "6035 GO",
+    #         "place": "opel",
+    #         "country": "Nederland"
+    #     },
+    #     "shipping_address": {
+    #         "company_name": "",
+    #         "email": "admin@gmail.com",
+    #         "phone": "0612345678",
+    #         "street": "koolhoensraat",
+    #         "house_number": "3",
+    #         "postal_code": "6035 GO",
+    #         "place": "opel",
+    #         "country": "Nederland"
+    #     },
+    #     "order_items": [
+    #         {
+    #             "id": 1,
+    #             "product_name": "Monseame Senger",
+    #             "status": "In behandeling",
+    #             "price": 9.12,
+    #             "amount": 5,
+    #             "total": 45.60
+    #         }
+    #     ]
+    # }
+    
+    
+    
+    return render_template('orders/order_details.html', order=order , order_lines=order_lines , customer=customer , totale=totale)
 
 
     
@@ -510,8 +537,107 @@ def customer_create():
 
 
 
+@app.route("/cart")
+def cart():
+    
+    try:
+        orderID = session.get('orderID')
+        if not orderID:
+            customer_name = ""
+        else:
+            customer_name = Order.get_customer_name_by_orderID(orderID)
+    
+        return render_template("cart/cart.html" , customer_name=customer_name)
+
+    except Error as e:
+        logger.error(f" A critical error has occurred in  cart(): {e} ")
+        abort(500)
+    
 
 
+
+def generate_tracking_code():
+    while True:
+        prefix = "TATC_"
+        random_part = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+        track_code = prefix + random_part
+        
+        connection = create_connection()
+        cursor = connection.cursor(dictionary=True)
+        query = "SELECT * FROM orders where tracking_code = %s"
+        cursor.execute(query, (track_code,))
+        exists = cursor.fetchone()
+        if not exists:
+            return track_code
+        
+        cursor.close()
+        connection.close()
+        
+        
+    
+
+@app.route('/checkout', methods=['GET', 'POST'])
+def checkout():
+    
+    orderID = session.get('orderID')
+    
+    
+        
+    if not orderID:
+            return redirect(url_for('cart'))
+        
+    is_order_lins = Order.check_if_order_lins_by_id(orderID)
+    if not is_order_lins:
+        return redirect(url_for('cart'))
+    form = CheckoutForm()
+
+    # Tracking code genereren en aan het formulier toevoegen
+    if request.method == 'GET':
+        form.tracking_code.data = generate_tracking_code()
+
+    if form.validate_on_submit():
+       
+        orderID = session.get('orderID')
+        date = form.date.data
+        delivery_time = form.delivery_time.data
+        tracking_code = form.tracking_code.data
+        urgent = form.urgent.data
+        delivery_postal_code = form.delivery_postal_code.data
+        delivery_house_number = form.delivery_house_number.data
+        delivery_city = form.delivery_city.data
+        
+        try:
+            
+            Order.update_order(orderID, date, delivery_time, tracking_code, urgent, delivery_postal_code, delivery_house_number, delivery_city)
+            Order.update_stock(orderID)
+
+            session.pop('orderID')
+            
+            return redirect(url_for('cart'))
+            
+        except Error as e:
+            logger.error(f" A critical error has occurred in  checkout(): {e} ")
+            abort(500)
+            
+        
+        
+        if not orderID:
+            abort(503)
+          
+    return render_template('checkout.html', form=form)
+
+
+@app.route("/invoice")
+def invoice():
+    
+    
+    session['orderID'] = 1
+    
+    orderID=  session.get('orderID')
+    print(session.get('orderID'))
+    
+    return f" Invoice page  { orderID }"
+    
 
 
 

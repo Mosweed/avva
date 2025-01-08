@@ -34,16 +34,23 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {% if request.endpoint in ['products', 'product', 'product_create', 'edit_product'] %}active{% endif %}"  href="{{ url_for('products') }}">Products</a>
+                        
                     </li>
                     <li class="nav-item">
                       <a class="nav-link {% if request.endpoint in ['suppliers', 'supplier_view', 'supplier_create', 'supplier_edit'] %}active{% endif %}" href="{{ url_for('suppliers') }}">Suppliers</a>
                   </li>
 
                     <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint in ['orders', 'order_view'] %}active{% endif %}" href="{{ url_for('orders') }}">Orders</a>
+                        <a class="nav-link hidden {% if request.endpoint in ['orders', 'order_view'] %}active{% endif %}" href="{{ url_for('orders') }}">Orders</a>
                     </li>
                   
-                
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint in ['products_list'] %}active{% endif %}" href="{{ url_for('products_list') }}">Products List</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link hidden {% if request.endpoint in ['cart'] %}active{% endif %}" href="{{ url_for('cart') }}">Cart</a>
+                    </li>
+
                 </ul>
             </div>
         </div>
@@ -79,6 +86,9 @@
 {% endblock %}
 
 
+<footer class="mt-5 py-3 bg-light text-center">
+    <p class="mb-0">&copy; 2024 Your Company Name. All rights reserved.</p>
+  </footer>
  
 <script src="https://cdn.datatables.net/v/dt/dt-2.1.8/datatables.min.js"></script>
 

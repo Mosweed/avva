@@ -212,8 +212,9 @@ INSERT INTO `products` (
                         self.energy_cost,
                         self.packaging_size,
                         self.storage_locationID,
-                        self.productID,
                         self.price,
+                        self.productID,
+
                     ),
                 )
 
@@ -226,6 +227,44 @@ INSERT INTO `products` (
 
                 cursor.close()
                 connection.close()
+
+
+    def update_price_history(self , price):
+        connection = self.create_connection()
+        if connection:
+            cursor = connection.cursor()
+            try:
+                query = """
+                INSERT INTO price_history (productID, price , eind_date) VALUES (%s, %s , now())
+                """
+                cursor.execute(query, (self.productID, price))
+                connection.commit()
+                print(f"Price history updated for product {self.productID}")
+            except Error as e:
+                print(f"Error: {e}")
+            finally:
+                cursor.close()
+                connection.close()
+
+
+    def get_price_history(self):
+        
+        connection = self.create_connection()
+        if connection:
+            cursor = connection.cursor(dictionary=True)
+            try:
+                query = """
+                SELECT * FROM price_history WHERE productID = %s
+                """
+                cursor.execute(query, (self.productID,))
+                rows = cursor.fetchall()
+                return rows
+            except Error as e:
+                print(f"Error: {e}")
+            finally:
+                cursor.close()
+                connection.close()
+        return []
 
     def get_suppliers(self):
         """Fetch all suppliers for a product"""
