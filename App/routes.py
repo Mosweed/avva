@@ -28,7 +28,7 @@ from App.form.checkoutform import CheckoutForm
 
 from logging_config import logger
 
-
+#region User routes
 def create_connection():
     try:
         connection = mysql.connector.connect(
@@ -44,6 +44,7 @@ def create_connection():
         logger.error(f" A critical error has occurred in  create_connection(): {e} ")
         
         return None
+#endregion
 
 
 def calculate_co2_truck(distance_km, emission_per_km=900):
@@ -55,49 +56,20 @@ def calculate_co2_truck(distance_km, emission_per_km=900):
 @app.route("/Dashboard")
 @app.route("/")
 def dashboard():
-
-    standard_co2 = calculate_co2_truck(random.randint(100, 500))
-    express_co2 = calculate_co2_truck(random.randint(100, 500) + 200)
-
-    connection = create_connection()
-    if not connection:
-        return render_template(
-            "dashboard.html",
-            products=[],
-            standard_co2=standard_co2,
-            express_co2=express_co2,
-        )
-    cursor = connection.cursor(dictionary=True)
     try:
-        cursor.execute(
-            "SELECT p.productID , p.name , p.stock , p.minimum_stock   FROM products p  where stock  <= minimum_stock "
-        )  
-        rows = cursor.fetchall()
+        standard_co2 = calculate_co2_truck(random.randint(100, 500))
+        express_co2 = calculate_co2_truck(random.randint(100, 500) + 200)
 
-        products = [
-            Product(
-                row["productID"],
-                row["name"],
-                row["stock"],
-                row["minimum_stock"],
-            )
-            for row in rows
-        ]
         return render_template(
             "dashboard.html",
-            products=products,
             standard_co2=standard_co2,
             express_co2=express_co2,
         )
-    # return jsonify([t.__dict__ for t in products])
 
     except Error as e:
         abort(500)
         logger.error(f" A critical error has occurred in  dashboard(): {e} ")        
         
-    finally:
-        cursor.close()
-        connection.close()
 
 
 @app.route("/products")
@@ -183,7 +155,7 @@ def product_create():
                 product.add_supplier(supplier_id)
 
             flash(
-                f"Product {product.name} aangemaakt met ID {product.productID}",
+                f"Product {product.name} created   ",
                 "success",
             )
             return redirect(url_for("products"))
@@ -249,7 +221,7 @@ def edit_product(product_id):
                 for supplier_id in form.suppliers.data:
                     product.add_supplier(supplier_id)
 
-            flash(f"Product '{product.name}' is succesvol bijgewerkt.", "success")
+            flash(f"Product '{product.name}' has been successfully updated.", "success")
             return redirect(url_for("products"))
         except Exception as e:
             flash(f"An error has occurred", "danger")
@@ -400,48 +372,30 @@ def order_details(order_id):
     
     order_lines = Order.get_order_lines_by_id(order_id)
     
-    # order = {
-    #     "order_number": 1,
-    #     "customer_name": "yazan sweed",
-    #     "total": 37.39,
-    #     "payment_status": "Not Paid",
-    #     "status_options": ["New", "In Progress", "Sent", "Delivered", "Canceled"],
-    #     "current_status": "In Progress",
-    #     "invoice_address": {
-    #         "company_name": "",
-    #         "email": "admin@gmail.com",
-    #         "phone": "0612345678",
-    #         "street": "koolhoensraat",
-    #         "house_number": "3",
-    #         "postal_code": "6035 GO",
-    #         "place": "opel",
-    #         "country": "Nederland"
-    #     },
-    #     "shipping_address": {
-    #         "company_name": "",
-    #         "email": "admin@gmail.com",
-    #         "phone": "0612345678",
-    #         "street": "koolhoensraat",
-    #         "house_number": "3",
-    #         "postal_code": "6035 GO",
-    #         "place": "opel",
-    #         "country": "Nederland"
-    #     },
-    #     "order_items": [
-    #         {
-    #             "id": 1,
-    #             "product_name": "Monseame Senger",
-    #             "status": "In behandeling",
-    #             "price": 9.12,
-    #             "amount": 5,
-    #             "total": 45.60
-    #         }
-    #     ]
-    # }
-    
-    
     
     return render_template('orders/order_details.html', order=order , order_lines=order_lines , customer=customer , totale=totale)
+
+
+
+
+
+@app.route('/test/<int:order_id>')
+
+def test(order_id):
+    
+    
+    order = Order.get_order_by_id(order_id)
+    if not order:
+        abort(404)
+        
+    totale = Order.get_order_total_by_id(order_id)
+    
+    customer = Order.get_order_customer_info_by_id(order_id)
+    
+    order_lines = Order.get_order_lines_by_id(order_id)
+    
+    
+    return render_template('orders/test.html', order=order , order_lines=order_lines , customer=customer , totale=totale)
 
 
     
@@ -501,8 +455,10 @@ def customer_edit(customer_id):
 
         try:
             customer.edit()
+            flash(f"Customer {customer.name} updated successfully!", "success")
             return redirect(url_for("customers"))
         except Error as e:
+            flash(f"An error has occurred", "danger")
             logger.error(f" A critical error has occurred in  customer_edit(): {e} ")
             abort(500)
 
@@ -527,8 +483,10 @@ def customer_create():
         )
         try:
             new_customer.create()
+            flash(f"Customer {new_customer.name} created successfully!", "success")
             return redirect(url_for("customers"))
         except Error as e:
+            flash(f"An error has occurred", "danger")
             logger.error(f" A critical error has occurred in  customer_create(): {e} ")
             abort(500)
 

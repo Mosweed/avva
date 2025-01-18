@@ -202,10 +202,10 @@ content %}
     let data = table.row($(this).closest("tr")).data();
     if (
       confirm(
-        "Are you sure you want to delete productID: " + data.productID + "?"
+        "Are you sure you want to delete product: " + data.name + "?"
       )
     ) {
-      alert("Delete button clicked for productID: " + data.productID);
+      alert(" Product: " + data.name + " deleted");
       // Implement your delete functionality here
     }
   });

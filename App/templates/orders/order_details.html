@@ -11,6 +11,7 @@
     <div class="card mb-4">
         <div class="card-body">
             <form>
+                <!-- Customer Details -->
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="customerID" class="form-label">Customer ID</label>
@@ -70,6 +71,7 @@
     <div class="card mb-4">
         <div class="card-body">
             <form>
+                <!-- Order Details -->
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <label for="orderID" class="form-label">Order ID</label>
@@ -114,7 +116,7 @@
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-bordered">
+                <table class="table table-bordered" id="orderLinesTable">
                     <thead>
                         <tr>
                             <th>Order Line ID</th>
@@ -137,8 +139,53 @@
                     </tbody>
                 </table>
             </div>
+           
         </div>
+
+        
+    </div>
+
+
+    <div class="mt-3">
+        <h4>Total Summary</h4>
+        <p>Total Amount: &euro;<span id="totalAmount">0</span></p>
+        <p>Total Discount: &euro;<span id="totalDiscount">0</span></p>
+        <p>Final Total: &euro;<span id="finalTotal">0</span></p>
     </div>
 </div>
 
+<script>
+    function calculateTotals(cart, discount) {
+        let totalAmount = 0;
+        let totalDiscount = 0;
+
+        cart.forEach(item => {
+            const itemTotal = item.price * item.quantity;
+            totalAmount += itemTotal;
+        });
+
+        totalDiscount = totalAmount * 0.05;
+        totalDiscount += (totalAmount - totalDiscount) * (discount / 100);
+
+        const finalTotal = totalAmount - totalDiscount;
+
+        document.getElementById('totalAmount').textContent = totalAmount.toFixed(2);
+        document.getElementById('totalDiscount').textContent = totalDiscount.toFixed(2);
+        document.getElementById('finalTotal').textContent = finalTotal.toFixed(2);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const orderLines = [
+            {% for line in order_lines %}
+            {
+                price: {{ line.price }},
+                quantity: {{ line.quantity }}
+            },
+            {% endfor %}
+        ];
+
+        const customerDiscount = {{ customer.customer_discount }} || 0;
+        calculateTotals(orderLines, customerDiscount);
+    });
+</script>
 {% endblock %}

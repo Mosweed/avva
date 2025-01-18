@@ -57,7 +57,6 @@
                     url: '/api/cart_items',
                     type: 'GET',
                     success: function (response) {
-                        console.error(response);
                         renderCart(response.cart , response.discount);
                     },
                     error: function () {
@@ -81,21 +80,21 @@
 
             function calculateTotals(cart, discount) {
                 let totalAmount = 0;
-    
+                let totalDiscount = 0;
                 cart.forEach(item => {
                     const itemTotal = item.price * item.quantity;
                     totalAmount += itemTotal;
-    
-                    // Example: Apply 10% discount if totalAmount > $100
-                    if (totalAmount > 100) {
-                        discount = totalAmount * 0.1;
-                    }
+                    
                 });
-    
-                const finalTotal = totalAmount - discount;
+                totalDiscount  = totalAmount * 0.05;
+       
+                totalDiscount = totalDiscount + ((totalAmount - totalDiscount )* (discount / 100));
+
+
+                const finalTotal = totalAmount - totalDiscount;
     
                 $("#total-amount").text(totalAmount.toFixed(2));
-                $("#discount").text(discount.toFixed(2));
+                $("#discount").text(totalDiscount.toFixed(2));
                 $("#final-total").text(finalTotal.toFixed(2));
             }
 

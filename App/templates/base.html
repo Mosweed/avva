@@ -41,14 +41,14 @@
                   </li>
 
                     <li class="nav-item">
-                        <a class="nav-link hidden {% if request.endpoint in ['orders', 'order_view'] %}active{% endif %}" href="{{ url_for('orders') }}">Orders</a>
+                        <a class="nav-link  {% if request.endpoint in ['orders', 'order_view'] %}active{% endif %}" href="{{ url_for('orders') }}">Orders</a>
                     </li>
                   
                     <li class="nav-item">
                         <a class="nav-link {% if request.endpoint in ['products_list'] %}active{% endif %}" href="{{ url_for('products_list') }}">Products List</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link hidden {% if request.endpoint in ['cart'] %}active{% endif %}" href="{{ url_for('cart') }}">Cart</a>
+                        <a class="nav-link  {% if request.endpoint in ['cart'] %}active{% endif %}" href="{{ url_for('cart') }}">Cart</a>
                     </li>
 
                 </ul>

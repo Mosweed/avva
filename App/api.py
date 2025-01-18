@@ -34,6 +34,81 @@ def create_connection():
         return None
 
 
+
+
+
+@app.route("/api/dashboard_products", methods=["POST", "GET"])
+def api_dashboard_products():
+    connection = create_connection()
+    if not connection:
+        logger.error("Failed to establish a database connection in api_products")
+        return jsonify({"error": "Database connection error"}), 500
+
+    cursor = connection.cursor(dictionary=True)
+    try:
+        if request.method == "POST":
+            draw = request.form["draw"]
+            row = int(request.form["start"])
+            rowperpage = int(request.form["length"])
+            searchValue = request.form["search[value]"]
+
+            cursor.execute("SELECT count(*) as allcount FROM products where stock  <= minimum_stock")
+            rsallcount = cursor.fetchone()
+            totalRecords = rsallcount["allcount"]
+
+            likeString = "%" + searchValue + "%"
+            cursor.execute(
+                "SELECT count(*) as allcount FROM products where stock  <= minimum_stock and (name LIKE %s OR productID LIKE %s OR article_number LIKE %s)",
+                (likeString, likeString, likeString),
+            )
+            rsallcount = cursor.fetchone()
+            totalRecordwithFilter = rsallcount["allcount"]
+
+            if searchValue == "":
+                cursor.execute(
+                    "SELECT * FROM products where stock  <= minimum_stock  ORDER BY productID ASC LIMIT %s, %s",
+                    (row, rowperpage),
+                )
+            else:
+                cursor.execute(
+                    "SELECT * FROM products where stock  <= minimum_stock  and (name LIKE %s OR productID LIKE %s OR article_number LIKE %s) ORDER BY productID ASC LIMIT %s, %s",
+                    (likeString, likeString, likeString, row, rowperpage),
+                )
+
+            productslist = cursor.fetchall()
+            data = [
+                {
+                    "productID": row["productID"],
+                    "name": row["name"],
+                    "article_number": row["article_number"],
+                    "stock": row["stock"],
+                    "minimum_stock": row["minimum_stock"],
+                    "price": row["price"],
+                }
+                for row in productslist
+            ]
+
+            response = {
+                "draw": draw,
+                "iTotalRecords": totalRecords,
+                "iTotalDisplayRecords": totalRecordwithFilter,
+                "aaData": data,
+            }
+
+            return jsonify(response)
+
+    except Exception as e:
+        logger.error(f"Error in api_products: {e}, Request Data: {request.form}")
+        return jsonify({"error": "An error occurred while fetching products"}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
+
+
+
+
+
 @app.route("/api/products", methods=["POST", "GET"])
 def api_products():
     connection = create_connection()

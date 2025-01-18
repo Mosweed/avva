@@ -41,77 +41,125 @@
 
 <div class="container my-4">
   <h1 class="text-center mb-4">Shortages of products</h1>
-  <div class="table-container">
-    <div class="mb-3">
-      <input
-        type="text"
-        class="form-control"
-        id="searchInput"
-        placeholder="Search for products..."
-      />
-    </div>
-
-    <div class="table-responsive">
-      <table id="product" class="table table-bordered table-striped table-dark">
-      <thead>
-        <tr>
-          <th scope="col">#</th>
-          <th scope="col">Product Name</th>
-          <th scope="col">stock</th>
-          <th scope="col">minimum_stock</th>
-        </tr>
-      </thead>
-      <tbody id="productTable">
-        {% if products|length == 0 %}
-        <tr class="text-center">
-          <td colspan="5">
-              <img src="https://42f2671d685f51e10fc6-b9fcecea3e50b3b59bdc28dead054ebc.ssl.cf5.rackcdn.com/v2/assets/empty.svg"
-                  alt="No results found">
-              <p class="mt-2">No results found</p>
-          </td>
-      </tr>
-        {% else  %}
-          {% for product in products %}
-          <tr>
-            <th scope="row">{{product.productID}}</th>
-            <td>{{product.name}}</td>
-            <td>{{product.stock}}</td>
-            <td>{{product.minimum_stock}}</td>
-          </tr>
-          {% endfor %}
-
-        {% endif %}
-      </tbody>
-    </table>
 
 
-
-
-    
+    <div class="container-fluid mt-5">
+      <div class="row justify-content-center">
+          <div class="col-md-10">
+              <div class="table-responsive shadow-lg rounded bg-white p-4">
+                  <table id="product" class="table table-bordered table-hover table-striped w-100 table-dark " >
+                      <thead class="thead-light">
+                          <tr>
+                              <th>Product ID</th>
+                              <th>Name</th>
+                              <th>Article Number</th>
+                              <th class="text-right">Stock</th>
+                              <th class="text-right">Minimum Stock</th>
+                              <th class="text-center">Actions</th>
+                          </tr>
+                      </thead>
+                  </table>
+              </div>
+          </div>
+      </div>
   </div>
-</div>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.colVis.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/rowgroup/1.3.1/js/dataTables.rowGroup.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css"
+/>
+
+
 
 <script>
-
-
-  (#product).DataTable({
+  let table = $("#product").DataTable({
+    responsive: {
+      breakpoints: [
+        { name: "desktop", width: Infinity },
+        { name: "tablet", width: 900 },
+        { name: "phone", width: 600 },
+      ],
+    },
+    topEnd: {
+      search: {
+        placeholder: "Type search here",
+      },
+    },
     responsive: true,
+    serverSide: true,
+      ajax: {
+          url: "/api/dashboard_products",
+          type: "POST",
+      },
+      columns: [
+    
+          { data: "productID", responsivePriority: 1 },
+          { data: "name", responsivePriority: 1 },
+          { data: "article_number", responsivePriority: 2 },
+          { data: "stock", className: "dt-body-right", responsivePriority: 3},
+          { data: "minimum_stock", className: "dt-body-right", responsivePriority: 3 },
+          {
+              data: null,
+              orderable: false,
+              searchable: false,
+              className: "text-center",
+              responsivePriority: 1,
+              defaultContent: `
+                  <button class="btn btn-sm btn-primary edit-btn">Edit</button>
+                  <button class="btn btn-sm btn-info view-btn">View</button>
+              `,
+          },
+      ],
+      ordering: false,
+    lengthMenu: [
+      [10, 25, 50],
+      [10, 25, 50],
+    ],
+      dom: '<"row mb-3"<"col-md-6"l><"col-md-6 text-end"f>>t<"row mt-3"<"col-md-5"i><"col-md-7 text-end"p>>',
+      language: {
+        emptyTable: "No data available in table", // Fallback text if the script below doesn't work
+    },
+    drawCallback: function (settings) {
+        let api = this.api();
+        let rows = api.rows({ page: "current" }).data().length;
+  
+        if (rows === 0) {
+            // Inject custom empty row
+            $(api.table().body())
+                .empty()
+                .append(`
+                    <tr class="text-center">
+                        <td colspan="7">
+                            <img src="https://42f2671d685f51e10fc6-b9fcecea3e50b3b59bdc28dead054ebc.ssl.cf5.rackcdn.com/v2/assets/empty.svg" 
+                                 alt="No results found" 
+                                 style="max-width: 150px;">
+                            <p class="mt-2">No results found</p>
+                        </td>
+                    </tr>
+                `);
+        }
+    },
+    });
+  
+
+  $("#product tbody").on("click", ".edit-btn", function () {
+      let data = table.row($(this).closest("tr")).data();
+      window.location.href = "/products/edit/" + data.productID;
   });
 
-  const searchInput = document.getElementById("searchInput");
-  const productTable = document.getElementById("productTable");
-
-  searchInput.addEventListener("input", function () {
-    const filter = searchInput.value.toLowerCase();
-    const rows = productTable.getElementsByTagName("tr");
-
-    Array.from(rows).forEach((row) => {
-      const cells = row.getElementsByTagName("td");
-      const match = Array.from(cells).some((cell) =>
-        cell.textContent.toLowerCase().includes(filter)
-      );
-      row.style.display = match ? "" : "none";
-    });
+  $("#product tbody").on("click", ".view-btn", function () {
+      let data = table.row($(this).closest("tr")).data();
+      window.location.href = "/products/" + data.productID;
   });
 </script>
 {% endblock %}

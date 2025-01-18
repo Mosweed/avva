@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Order Details{% endblock %}
+
+{% block hero %}Order Details{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <a href="{{ url_for('orders') }}" class="btn btn-secondary mb-3">&larr; Back</a>
+
+    <h2>Order Overview</h2>
+    <div class="card mb-4">
+        <div class="card-body">
+            <form>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="orderID" class="form-label">Order ID</label>
+                        <input type="text" class="form-control" id="orderID" value="{{ order.orderID }}" readonly>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="orderDate" class="form-label">Order Date</label>
+                        <input type="text" class="form-control" id="orderDate" value="{{ order.date }}" readonly>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="trackingCode" class="form-label">Tracking Code</label>
+                        <input type="text" class="form-control" id="trackingCode" value="{{ order.tracking_code }}" readonly>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="status" class="form-label">Status</label>
+                        <select id="status" class="form-select">
+                            <option value="Pending" {% if order.status == 'Pending' %}selected{% endif %}>Pending</option>
+                            <option value="Shipped" {% if order.status == 'Shipped' %}selected{% endif %}>Shipped</option>
+                            <option value="Delivered" {% if order.status == 'Delivered' %}selected{% endif %}>Delivered</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="deliverySlot" class="form-label">Preferred Delivery Slot</label>
+                        <select id="deliverySlot" class="form-select">
+                            <option value="Morning" {% if order.delivery_slot == 'Morning' %}selected{% endif %}>Morning</option>
+                            <option value="Afternoon" {% if order.delivery_slot == 'Afternoon' %}selected{% endif %}>Afternoon</option>
+                            <option value="Evening" {% if order.delivery_slot == 'Evening' %}selected{% endif %}>Evening</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Update</button>
+            </form>
+        </div>
+    </div>
+
+    <h2>Customer Information</h2>
+    <div class="card mb-4">
+        <div class="card-body">
+            <p><strong>Name:</strong> {{ customer.name }}</p>
+            <p><strong>Email:</strong> {{ customer.email }}</p>
+            <p><strong>Phone:</strong> {{ customer.phone_number }}</p>
+            <p><strong>Address:</strong> {{ customer.street_name }} {{ customer.house_number }}, {{ customer.postal_code }}, {{ customer.city }}</p>
+        </div>
+    </div>
+
+    <h2>Order Items</h2>
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for line in order_lines %}
+                        <tr>
+                            <td>{{ line.name }}</td>
+                            <td>{{ line.quantity }}</td>
+                            <td>&euro;{{ line.price }}</td>
+                            <td>&euro;{{ line.price * line.quantity }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Optional: Add JavaScript for updating status and delivery slot via AJAX.
+</script>
+
+{% endblock %}

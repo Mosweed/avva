@@ -36,7 +36,7 @@ class ProductForm(FlaskForm):
     energy_cost = StringField("Energy Cost", validators=[DataRequired()])
     packaging_size = StringField("Packaging Size", validators=[DataRequired()])
     price = FloatField(
-        'Enter a float number:',
+        'Price',
         validators=[
             InputRequired(message="This field is required."),
             NumberRange(min=0.0, message="Value must be moor than 0 .")
@@ -71,7 +71,7 @@ class EditProductForm(FlaskForm):
     energy_cost = StringField("Energy Cost", validators=[DataRequired()])
     packaging_size = StringField("Packaging Size", validators=[DataRequired()])
     price = FloatField(
-        'Enter a float number:',
+        'Price',
         validators=[
             InputRequired(message="This field is required."),
             NumberRange(min=0.0, message="Value must be moor than 0 .")
